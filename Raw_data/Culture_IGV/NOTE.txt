@@ -1,0 +1,1 @@
+This is where all of the raw fastq files were during the local run. These are now stored at the NCBI SRA link as listed in the manuscript.
