@@ -1,0 +1,20 @@
+SampleID,sample_type,clade,genus,sequenced_clade,sequenced_genus,match_expected
+CCMP_2430,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+CCMP_2461,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+CCMP_2469,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+CCMP_2548,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+CCMP_2592,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+Cult_24_Sugget,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+Cult_28_Sugget,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+Cult_29_Sugget,culture,clade A,Symbiodinium,clade A,Symbiodinium,y
+Cult_37_Sugget,culture,clade B,Breviolum,clade B,Breviolum,y
+Cult_40_Sugget,culture,clade B,Breviolum,clade B,Breviolum,y
+Cult_152,culture,clade C,Cladocopium,clade B,Breviolum,n
+CCMP_2556,culture,clade D,Durusdinium,clade D,Durusdinium,y
+Cult_RD03,culture,clade D,Durusdinium,clade D,Durusdinium,y
+RB7,culture,clade D,Durusdinium,clade D,Durusdinium,y
+SV_FL_1,culture,clade E,Effrenium,clade E,Effrenium,y
+SV_IC,culture,clade E,Effrenium,clade E,Effrenium,y
+CCMP_2434,culture,clade F,Fugacium,clade F,Fugacium,y
+Cult_133,culture,clade F,Fugacium,clade F,Fugacium,y
+Cult_135,culture,clade F,Fugacium,clade F,Fugacium,y

@@ -1,0 +1,254 @@
+Sample_ID,Full,Type,Specific,Season,Site,Replicate,Water,Reseq_pairs,Culture_clade,Culture_genus,Sequenced_clade,Sequenced_genus,Match_expected,Heron_study,Symbiodinium_network,Durusdinium_network,Fugacium_network
+CCMP_2430,CCMP_2430,Culture,CCMP_2430,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+CCMP_2434,CCMP_2434,Culture,CCMP_2434,x,x,x,x,x,clade F,Fugacium,clade F,Fugacium,y,y,n,n,y
+CCMP_2461,CCMP_2461,Culture,CCMP_2461,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+CCMP_2469,CCMP_2469,Culture,CCMP_2469,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+CCMP_2548,CCMP_2548,Culture,CCMP_2548,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+CCMP_2556,CCMP_2556,Culture,CCMP_2556,x,x,x,x,x,clade D,Durusdinium,clade D,Durusdinium,y,y,n,y,n
+CCMP_2592,CCMP_2592,Culture,CCMP_2592,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+Cult_133,Cult_133,Culture,Cult_133,x,x,x,x,x,clade F,Fugacium,clade F,Fugacium,y,y,n,n,y
+Cult_135,Cult_135,Culture,Cult_135,x,x,x,x,x,clade F,Fugacium,clade F,Fugacium,y,y,n,n,y
+Cult_152,Cult_152,Culture,Cult_152,x,x,x,x,x,clade C,Cladocopium,clade B,Breviolum,n,y,n,n,n
+Cult_24_Sugget,Cult_24_Sugget,Culture,Cult_24_Sugget,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+Cult_28_Sugget,Cult_28_Sugget,Culture,Cult_28_Sugget,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+Cult_29_Sugget,Cult_29_Sugget,Culture,Cult_29_Sugget,x,x,x,x,x,clade A,Symbiodinium,clade A,Symbiodinium,y,y,y,n,n
+Cult_37_Sugget,Cult_37_Sugget,Culture,Cult_37_Sugget,x,x,x,x,x,clade B,Breviolum,clade B,Breviolum,y,y,n,n,n
+Cult_40_Sugget,Cult_40_Sugget,Culture,Cult_40_Sugget,x,x,x,x,x,clade B,Breviolum,clade B,Breviolum,y,y,n,n,n
+Cult_RD03,Cult_RD03,Culture,Cult_RD03,x,x,x,x,x,clade D,Durusdinium,clade D,Durusdinium,y,y,n,y,y
+1_ITS2,Heron_2015_Coral (Acropora)_site 1_a,Host,Acropora aspera,Spawning,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+54_ITS2,Heron_2015_Coral (Acropora)_site 1_b,Host,Acropora aspera,Spawning,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+55_ITS2,Heron_2015_Coral (Acropora)_site 1_c,Host,Acropora aspera,Spawning,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+56_ITS2,Heron_2015_Coral (Acropora)_site 1_d,Host,Acropora aspera,Spawning,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+2_ITS2,Heron_2015_Coral (Montipora)_site 2_a,Host,Montipora digitata,Spawning,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+57_ITS2,Heron_2015_Coral (Montipora)_site 2_b,Host,Montipora digitata,Spawning,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+58_ITS2,Heron_2015_Coral (Montipora)_site 2_c,Host,Montipora digitata,Spawning,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+59_ITS2,Heron_2015_Coral (Montipora)_site 2_d,Host,Montipora digitata,Spawning,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+3_ITS2,Heron_2015_Coral (Pocillopora)_site 3_a,Host,Pocillopora damicornis,Spawning,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+60_ITS2,Heron_2015_Coral (Pocillopora)_site 3_b,Host,Pocillopora damicornis,Spawning,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+61_ITS2,Heron_2015_Coral (Pocillopora)_site 3_c,Host,Pocillopora damicornis,Spawning,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+62_ITS2,Heron_2015_Coral (Pocillopora)_site 3_d,Host,Pocillopora damicornis,Spawning,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+23_ITS2,Heron_2015_Macroalgae (Padina)_site 1_a,Environment,Macroalgae,Spawning,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+132_ITS2,Heron_2015_Macroalgae (Padina)_site 1_b,Environment,Macroalgae,Spawning,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+133_ITS2,Heron_2015_Macroalgae (Padina)_site 1_c,Environment,Macroalgae,Spawning,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+134_ITS2,Heron_2015_Macroalgae (Padina)_site 1_d,Environment,Macroalgae,Spawning,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+24_ITS2,Heron_2015_Macroalgae (Padina)_site 2_a,Environment,Macroalgae,Spawning,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+135_ITS2,Heron_2015_Macroalgae (Padina)_site 2_b,Environment,Macroalgae,Spawning,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+136_ITS2,Heron_2015_Macroalgae (Padina)_site 2_c,Environment,Macroalgae,Spawning,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+137_ITS2,Heron_2015_Macroalgae (Padina)_site 2_d,Environment,Macroalgae,Spawning,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+25_ITS2,Heron_2015_Macroalgae (Padina)_site 3_a,Environment,Macroalgae,Spawning,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+138_ITS2,Heron_2015_Macroalgae (Padina)_site 3_b,Environment,Macroalgae,Spawning,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+139_ITS2,Heron_2015_Macroalgae (Padina)_site 3_c,Environment,Macroalgae,Spawning,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+140_ITS2,Heron_2015_Macroalgae (Padina)_site 3_d,Environment,Macroalgae,Spawning,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+19_ITS2,Heron_2015_Sediment_site 1_a,Environment,Sediment,Spawning,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+123_ITS2,Heron_2015_Sediment_site 1_b,Environment,Sediment,Spawning,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+124_ITS2,Heron_2015_Sediment_site 1_c,Environment,Sediment,Spawning,Site_1,C,Tropical,A,x,x,x,x,x,n,y,y,y
+124_ITS2Re,Heron_2015_Sediment_site 1_c,Environment,Sediment,Spawning,Site_1,C,Tropical,A,x,x,x,x,x,y,y,y,y
+125_ITS2,Heron_2015_Sediment_site 1_d,Environment,Sediment,Spawning,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+20_ITS2,Heron_2015_Sediment_site 2_a,Environment,Sediment,Spawning,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+126_ITS2,Heron_2015_Sediment_site 2_b,Environment,Sediment,Spawning,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+127_ITS2,Heron_2015_Sediment_site 2_c,Environment,Sediment,Spawning,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+128_ITS2,Heron_2015_Sediment_site 2_d,Environment,Sediment,Spawning,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+21_ITS2,Heron_2015_Sediment_site 3_a,Environment,Sediment,Spawning,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+129_ITS2,Heron_2015_Sediment_site 3_b,Environment,Sediment,Spawning,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+130_ITS2,Heron_2015_Sediment_site 3_c,Environment,Sediment,Spawning,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+131_ITS2,Heron_2015_Sediment_site 3_d,Environment,Sediment,Spawning,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+15_ITS2,Heron_2015_Water_site 1_a,Environment,Water,Spawning,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+114_ITS2,Heron_2015_Water_site 1_b,Environment,Water,Spawning,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+115_ITS2,Heron_2015_Water_site 1_c,Environment,Water,Spawning,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+116_ITS2,Heron_2015_Water_site 1_d,Environment,Water,Spawning,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+16_ITS2,Heron_2015_Water_site 2_a,Environment,Water,Spawning,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+117_ITS2,Heron_2015_Water_site 2_b,Environment,Water,Spawning,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+118_ITS2,Heron_2015_Water_site 2_c,Environment,Water,Spawning,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+119_ITS2,Heron_2015_Water_site 2_d,Environment,Water,Spawning,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+17_ITS2,Heron_2015_Water_site 3_a,Environment,Water,Spawning,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+120_ITS2,Heron_2015_Water_site 3_b,Environment,Water,Spawning,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+121_ITS2,Heron_2015_Water_site 3_c,Environment,Water,Spawning,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+122_ITS2,Heron_2015_Water_site 3_d,Environment,Water,Spawning,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+63_ITS2,Heron_2016_Coral (Acropora)_site 1_a,Host,Acropora aspera,Summer,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+64_ITS2,Heron_2016_Coral (Acropora)_site 1_b,Host,Acropora aspera,Summer,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+65_ITS2,Heron_2016_Coral (Acropora)_site 1_c,Host,Acropora aspera,Summer,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+66_ITS2,Heron_2016_Coral (Acropora)_site 1_d,Host,Acropora aspera,Summer,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+67_ITS2,Heron_2016_Coral (Montipora)_site 2_a,Host,Montipora digitata,Summer,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+68_ITS2,Heron_2016_Coral (Montipora)_site 2_b,Host,Montipora digitata,Summer,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+69_ITS2,Heron_2016_Coral (Montipora)_site 2_c,Host,Montipora digitata,Summer,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+70_ITS2,Heron_2016_Coral (Montipora)_site 2_d,Host,Montipora digitata,Summer,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+71_ITS2,Heron_2016_Coral (Pocillopora)_site 3_a,Host,Pocillopora damicornis,Summer,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+72_ITS2,Heron_2016_Coral (Pocillopora)_site 3_b,Host,Pocillopora damicornis,Summer,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+73_ITS2,Heron_2016_Coral (Pocillopora)_site 3_c,Host,Pocillopora damicornis,Summer,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+74_ITS2,Heron_2016_Coral (Pocillopora)_site 3_d,Host,Pocillopora damicornis,Summer,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+32_ITS2,Heron_2016_Macroalgae (Padina)_site 1_a,Environment,Macroalgae,Summer,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+33_ITS2,Heron_2016_Macroalgae (Padina)_site 1_b,Environment,Macroalgae,Summer,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+161_ITS2,Heron_2016_Macroalgae (Padina)_site 1_c,Environment,Macroalgae,Summer,Site_1,C,Tropical,B,x,x,x,x,x,n,y,y,y
+161_ITS2Re,Heron_2016_Macroalgae (Padina)_site 1_c,Environment,Macroalgae,Summer,Site_1,C,Tropical,B,x,x,x,x,x,y,y,y,y
+162_ITS2,Heron_2016_Macroalgae (Padina)_site 1_d,Environment,Macroalgae,Summer,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+163_ITS2,Heron_2016_Macroalgae (Padina)_site 2_a,Environment,Macroalgae,Summer,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+164_ITS2,Heron_2016_Macroalgae (Padina)_site 2_b,Environment,Macroalgae,Summer,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+165_ITS2,Heron_2016_Macroalgae (Padina)_site 2_c,Environment,Macroalgae,Summer,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+166_ITS2,Heron_2016_Macroalgae (Padina)_site 2_d,Environment,Macroalgae,Summer,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+167_ITS2,Heron_2016_Macroalgae (Padina)_site 3_a,Environment,Macroalgae,Summer,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+168_ITS2,Heron_2016_Macroalgae (Padina)_site 3_b,Environment,Macroalgae,Summer,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+169_ITS2,Heron_2016_Macroalgae (Padina)_site 3_c,Environment,Macroalgae,Summer,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+170_ITS2,Heron_2016_Macroalgae (Padina)_site 3_d,Environment,Macroalgae,Summer,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+30_ITS2,Heron_2016_Sediment_site 1_a,Environment,Sediment,Summer,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+31_ITS2,Heron_2016_Sediment_site 1_b,Environment,Sediment,Summer,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+151_ITS2,Heron_2016_Sediment_site 1_c,Environment,Sediment,Summer,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+152_ITS2,Heron_2016_Sediment_site 1_d,Environment,Sediment,Summer,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+153_ITS2,Heron_2016_Sediment_site 2_a,Environment,Sediment,Summer,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+154_ITS2,Heron_2016_Sediment_site 2_b,Environment,Sediment,Summer,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+155_ITS2,Heron_2016_Sediment_site 2_c,Environment,Sediment,Summer,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+156_ITS2,Heron_2016_Sediment_site 2_d,Environment,Sediment,Summer,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+157_ITS2,Heron_2016_Sediment_site 3_a,Environment,Sediment,Summer,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+158_ITS2,Heron_2016_Sediment_site 3_b,Environment,Sediment,Summer,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+159_ITS2,Heron_2016_Sediment_site 3_c,Environment,Sediment,Summer,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+160_ITS2,Heron_2016_Sediment_site 3_d,Environment,Sediment,Summer,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+28_ITS2,Heron_2016_Water_site 1_a,Environment,Water,Summer,Site_1,A,Tropical,x,x,x,x,x,x,y,y,y,y
+29_ITS2,Heron_2016_Water_site 1_b,Environment,Water,Summer,Site_1,B,Tropical,x,x,x,x,x,x,y,y,y,y
+141_ITS2,Heron_2016_Water_site 1_c,Environment,Water,Summer,Site_1,C,Tropical,x,x,x,x,x,x,y,y,y,y
+142_ITS2,Heron_2016_Water_site 1_d,Environment,Water,Summer,Site_1,D,Tropical,x,x,x,x,x,x,y,y,y,y
+143_ITS2,Heron_2016_Water_site 2_a,Environment,Water,Summer,Site_2,A,Tropical,x,x,x,x,x,x,y,y,y,y
+144_ITS2,Heron_2016_Water_site 2_b,Environment,Water,Summer,Site_2,B,Tropical,x,x,x,x,x,x,y,y,y,y
+145_ITS2,Heron_2016_Water_site 2_c,Environment,Water,Summer,Site_2,C,Tropical,x,x,x,x,x,x,y,y,y,y
+146_ITS2,Heron_2016_Water_site 2_d,Environment,Water,Summer,Site_2,D,Tropical,x,x,x,x,x,x,y,y,y,y
+147_ITS2,Heron_2016_Water_site 3_a,Environment,Water,Summer,Site_3,A,Tropical,x,x,x,x,x,x,y,y,y,y
+148_ITS2,Heron_2016_Water_site 3_b,Environment,Water,Summer,Site_3,B,Tropical,x,x,x,x,x,x,y,y,y,y
+149_ITS2,Heron_2016_Water_site 3_c,Environment,Water,Summer,Site_3,C,Tropical,x,x,x,x,x,x,y,y,y,y
+150_ITS2,Heron_2016_Water_site 3_d,Environment,Water,Summer,Site_3,D,Tropical,x,x,x,x,x,x,y,y,y,y
+RB7,RB7,Culture,RB7,x,x,x,x,x,clade D,Durusdinium,clade D,Durusdinium,y,y,n,y,y
+SV_FL_1,SV_FL_1,Culture,SV_FL_1,x,x,x,x,x,clade E,Effrenium,clade E,Effrenium,y,y,n,n,n
+SV_IC,SV_IC,Culture,SV_IC,x,x,x,x,x,clade E,Effrenium,clade E,Effrenium,y,y,n,n,n
+11_ITS2,Sydney_2015_Coral (Plesiastrea)_site 1_a,Host,Plesiastrea versipora,Summer,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+75_ITS2,Sydney_2015_Coral (Plesiastrea)_site 1_b,Host,Plesiastrea versipora,Summer,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+76_ITS2,Sydney_2015_Coral (Plesiastrea)_site 1_c,Host,Plesiastrea versipora,Summer,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+77_ITS2,Sydney_2015_Coral (Plesiastrea)_site 1_d,Host,Plesiastrea versipora,Summer,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+12_ITS2,Sydney_2015_Coral (Plesiastrea)_site 2_a,Host,Plesiastrea versipora,Summer,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+78_ITS2,Sydney_2015_Coral (Plesiastrea)_site 2_b,Host,Plesiastrea versipora,Summer,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+79_ITS2,Sydney_2015_Coral (Plesiastrea)_site 2_c,Host,Plesiastrea versipora,Summer,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+80_ITS2,Sydney_2015_Coral (Plesiastrea)_site 2_d,Host,Plesiastrea versipora,Summer,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+13_ITS2,Sydney_2015_Coral (Plesiastrea)_site 3_a,Host,Plesiastrea versipora,Summer,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+81_ITS2,Sydney_2015_Coral (Plesiastrea)_site 3_b,Host,Plesiastrea versipora,Summer,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+82_ITS2,Sydney_2015_Coral (Plesiastrea)_site 3_c,Host,Plesiastrea versipora,Summer,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+83_ITS2,Sydney_2015_Coral (Plesiastrea)_site 3_d,Host,Plesiastrea versipora,Summer,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+40_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 1_a,Environment,Macroalgae,Summer,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+189_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 1_b,Environment,Macroalgae,Summer,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+190_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 1_c,Environment,Macroalgae,Summer,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+191_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 1_d,Environment,Macroalgae,Summer,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+41_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 2_a,Environment,Macroalgae,Summer,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+192_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 2_b,Environment,Macroalgae,Summer,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+193_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 2_c,Environment,Macroalgae,Summer,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+194_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 2_d,Environment,Macroalgae,Summer,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+42_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 3_a,Environment,Macroalgae,Summer,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+195_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 3_b,Environment,Macroalgae,Summer,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+196_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 3_c,Environment,Macroalgae,Summer,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+197_ITS2,Sydney_2015_Macroalgae (Ecklonia)_site 3_d,Environment,Macroalgae,Summer,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+37_ITS2,Sydney_2015_Sediment_site 1_a,Environment,Sediment,Summer,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+180_ITS2,Sydney_2015_Sediment_site 1_b,Environment,Sediment,Summer,Site_1,B,Temperate,C,x,x,x,x,x,n,n,n,n
+180_ITS2Re,Sydney_2015_Sediment_site 1_b,Environment,Sediment,Summer,Site_1,B,Temperate,C,x,x,x,x,x,n,n,n,n
+181_ITS2,Sydney_2015_Sediment_site 1_c,Environment,Sediment,Summer,Site_1,C,Temperate,D,x,x,x,x,x,n,n,n,n
+181_ITS2Re,Sydney_2015_Sediment_site 1_c,Environment,Sediment,Summer,Site_1,C,Temperate,D,x,x,x,x,x,n,n,n,n
+182_ITS2,Sydney_2015_Sediment_site 1_d,Environment,Sediment,Summer,Site_1,D,Temperate,E,x,x,x,x,x,n,n,n,n
+182_ITS2Re,Sydney_2015_Sediment_site 1_d,Environment,Sediment,Summer,Site_1,D,Temperate,E,x,x,x,x,x,n,n,n,n
+38_ITS2,Sydney_2015_Sediment_site 2_a,Environment,Sediment,Summer,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+184_ITS2,Sydney_2015_Sediment_site 2_c,Environment,Sediment,Summer,Site_2,C,Temperate,F,x,x,x,x,x,n,n,n,n
+184_ITS2Re,Sydney_2015_Sediment_site 2_c,Environment,Sediment,Summer,Site_2,C,Temperate,F,x,x,x,x,x,n,n,n,n
+185_ITS2,Sydney_2015_Sediment_site 2_d,Environment,Sediment,Summer,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+39_ITS2,Sydney_2015_Sediment_site 3_a,Environment,Sediment,Summer,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+186_ITS2,Sydney_2015_Sediment_site 3_b,Environment,Sediment,Summer,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+187_ITS2,Sydney_2015_Sediment_site 3_c,Environment,Sediment,Summer,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+188_ITS2,Sydney_2015_Sediment_site 3_d,Environment,Sediment,Summer,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+84_ITS2,Sydney_2015_Soft coral (Capnella)_site 1_a,Host,Capnella gaboensis,Summer,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+85_ITS2,Sydney_2015_Soft coral (Capnella)_site 1_b,Host,Capnella gaboensis,Summer,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+86_ITS2,Sydney_2015_Soft coral (Capnella)_site 1_c,Host,Capnella gaboensis,Summer,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+87_ITS2,Sydney_2015_Soft coral (Capnella)_site 1_d,Host,Capnella gaboensis,Summer,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+4_ITS2,Sydney_2015_Soft coral (Capnella)_site 2_a,Host,Capnella gaboensis,Summer,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+88_ITS2,Sydney_2015_Soft coral (Capnella)_site 2_b,Host,Capnella gaboensis,Summer,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+89_ITS2,Sydney_2015_Soft coral (Capnella)_site 2_c,Host,Capnella gaboensis,Summer,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+90_ITS2,Sydney_2015_Soft coral (Capnella)_site 2_d,Host,Capnella gaboensis,Summer,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+5_ITS2,Sydney_2015_Soft coral (Capnella)_site 3_a,Host,Capnella gaboensis,Summer,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+91_ITS2,Sydney_2015_Soft coral (Capnella)_site 3_b,Host,Capnella gaboensis,Summer,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+92_ITS2,Sydney_2015_Soft coral (Capnella)_site 3_c,Host,Capnella gaboensis,Summer,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+93_ITS2,Sydney_2015_Soft coral (Capnella)_site 3_d,Host,Capnella gaboensis,Summer,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+34_ITS2,Sydney_2015_Water_site 1_a,Environment,Water,Summer,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+171_ITS2,Sydney_2015_Water_site 1_b,Environment,Water,Summer,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+172_ITS2,Sydney_2015_Water_site 1_c,Environment,Water,Summer,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+173_ITS2,Sydney_2015_Water_site 1_d,Environment,Water,Summer,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+35_ITS2,Sydney_2015_Water_site 2_a,Environment,Water,Summer,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+174_ITS2,Sydney_2015_Water_site 2_b,Environment,Water,Summer,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+175_ITS2,Sydney_2015_Water_site 2_c,Environment,Water,Summer,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+176_ITS2,Sydney_2015_Water_site 2_d,Environment,Water,Summer,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+36_ITS2,Sydney_2015_Water_site 3_a,Environment,Water,Summer,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+177_ITS2,Sydney_2015_Water_site 3_b,Environment,Water,Summer,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+178_ITS2,Sydney_2015_Water_site 3_c,Environment,Water,Summer,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+179_ITS2,Sydney_2015_Water_site 3_d,Environment,Water,Summer,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+94_ITS2,Sydney_2016_Coral (Plesiastrea)_site 1_a,Host,Plesiastrea versipora,Bleaching,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+95_ITS2,Sydney_2016_Coral (Plesiastrea)_site 1_b,Host,Plesiastrea versipora,Bleaching,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+96_ITS2,Sydney_2016_Coral (Plesiastrea)_site 1_c,Host,Plesiastrea versipora,Bleaching,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+97_ITS2,Sydney_2016_Coral (Plesiastrea)_site 1_d,Host,Plesiastrea versipora,Bleaching,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+98_ITS2,Sydney_2016_Coral (Plesiastrea)_site 2_a,Host,Plesiastrea versipora,Bleaching,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+99_ITS2,Sydney_2016_Coral (Plesiastrea)_site 2_b,Host,Plesiastrea versipora,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+100_ITS2,Sydney_2016_Coral (Plesiastrea)_site 2_c,Host,Plesiastrea versipora,Bleaching,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+101_ITS2,Sydney_2016_Coral (Plesiastrea)_site 2_d,Host,Plesiastrea versipora,Bleaching,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+102_ITS2,Sydney_2016_Coral (Plesiastrea)_site 3_a,Host,Plesiastrea versipora,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+103_ITS2,Sydney_2016_Coral (Plesiastrea)_site 3_b,Host,Plesiastrea versipora,Bleaching,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+104_ITS2,Sydney_2016_Coral (Plesiastrea)_site 3_c,Host,Plesiastrea versipora,Bleaching,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+105_ITS2,Sydney_2016_Coral (Plesiastrea)_site 3_d,Host,Plesiastrea versipora,Bleaching,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+49_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 1_a,Environment,Macroalgae,Bleaching,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+50_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 1_b,Environment,Macroalgae,Bleaching,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+218_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 1_c,Environment,Macroalgae,Bleaching,Site_1,C,Temperate,I,x,x,x,x,x,n,n,n,n
+218_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 1_c,Environment,Macroalgae,Bleaching,Site_1,C,Temperate,I,x,x,x,x,x,n,n,n,n
+219_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 1_d,Environment,Macroalgae,Bleaching,Site_1,D,Temperate,J,x,x,x,x,x,n,n,n,n
+219_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 1_d,Environment,Macroalgae,Bleaching,Site_1,D,Temperate,J,x,x,x,x,x,n,n,n,n
+220_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 2_a,Environment,Macroalgae,Bleaching,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+221_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 2_b,Environment,Macroalgae,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+221_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 2_b,Environment,Macroalgae,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+222_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 2_c,Environment,Macroalgae,Bleaching,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+223_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 2_d,Environment,Macroalgae,Bleaching,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+223_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 2_d,Environment,Macroalgae,Bleaching,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+224_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 3_a,Environment,Macroalgae,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+224_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 3_a,Environment,Macroalgae,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+225_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 3_b,Environment,Macroalgae,Bleaching,Site_3,B,Temperate,K,x,x,x,x,x,n,n,n,n
+225_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 3_b,Environment,Macroalgae,Bleaching,Site_3,B,Temperate,K,x,x,x,x,x,n,n,n,n
+226_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 3_c,Environment,Macroalgae,Bleaching,Site_3,C,Temperate,L,x,x,x,x,x,n,n,n,n
+226_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 3_c,Environment,Macroalgae,Bleaching,Site_3,C,Temperate,L,x,x,x,x,x,n,n,n,n
+227_ITS2,Sydney_2016_Macroalgae (Ecklonia)_site 3_d,Environment,Macroalgae,Bleaching,Site_3,D,Temperate,M,x,x,x,x,x,n,n,n,n
+227_ITS2Re,Sydney_2016_Macroalgae (Ecklonia)_site 3_d,Environment,Macroalgae,Bleaching,Site_3,D,Temperate,M,x,x,x,x,x,n,n,n,n
+47_ITS2,Sydney_2016_Sediment_site 1_a,Environment,Sediment,Bleaching,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+48_ITS2,Sydney_2016_Sediment_site 1_b,Environment,Sediment,Bleaching,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+208_ITS2,Sydney_2016_Sediment_site 1_c,Environment,Sediment,Bleaching,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+209_ITS2,Sydney_2016_Sediment_site 1_d,Environment,Sediment,Bleaching,Site_1,D,Temperate,G,x,x,x,x,x,n,n,n,n
+209_ITS2Re,Sydney_2016_Sediment_site 1_d,Environment,Sediment,Bleaching,Site_1,D,Temperate,G,x,x,x,x,x,n,n,n,n
+210_ITS2,Sydney_2016_Sediment_site 2_a,Environment,Sediment,Bleaching,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+211_ITS2,Sydney_2016_Sediment_site 2_b,Environment,Sediment,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+211_ITS2Re,Sydney_2016_Sediment_site 2_b,Environment,Sediment,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+213_ITS2,Sydney_2016_Sediment_site 2_d,Environment,Sediment,Bleaching,Site_2,D,Temperate,H,x,x,x,x,x,n,n,n,n
+213_ITS2Re,Sydney_2016_Sediment_site 2_d,Environment,Sediment,Bleaching,Site_2,D,Temperate,H,x,x,x,x,x,n,n,n,n
+214_ITS2,Sydney_2016_Sediment_site 3_a,Environment,Sediment,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+215_ITS2,Sydney_2016_Sediment_site 3_b,Environment,Sediment,Bleaching,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+216_ITS2,Sydney_2016_Sediment_site 3_c,Environment,Sediment,Bleaching,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+217_ITS2,Sydney_2016_Sediment_site 3_d,Environment,Sediment,Bleaching,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+106_ITS2,Sydney_2016_Soft coral (Capnella)_site 2_a,Host,Capnella gaboensis,Bleaching,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+107_ITS2,Sydney_2016_Soft coral (Capnella)_site 2_b,Host,Capnella gaboensis,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+108_ITS2,Sydney_2016_Soft coral (Capnella)_site 2_c,Host,Capnella gaboensis,Bleaching,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+109_ITS2,Sydney_2016_Soft coral (Capnella)_site 2_d,Host,Capnella gaboensis,Bleaching,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+110_ITS2,Sydney_2016_Soft coral (Capnella)_site 3_a,Host,Capnella gaboensis,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+111_ITS2,Sydney_2016_Soft coral (Capnella)_site 3_b,Host,Capnella gaboensis,Bleaching,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+112_ITS2,Sydney_2016_Soft coral (Capnella)_site 3_c,Host,Capnella gaboensis,Bleaching,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+113_ITS2,Sydney_2016_Soft coral (Capnella)_site 3_d,Host,Capnella gaboensis,Bleaching,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+45_ITS2,Sydney_2016_Water_site 1_a,Environment,Water,Bleaching,Site_1,A,Temperate,x,x,x,x,x,x,n,n,n,n
+46_ITS2,Sydney_2016_Water_site 1_b,Environment,Water,Bleaching,Site_1,B,Temperate,x,x,x,x,x,x,n,n,n,n
+198_ITS2,Sydney_2016_Water_site 1_c,Environment,Water,Bleaching,Site_1,C,Temperate,x,x,x,x,x,x,n,n,n,n
+199_ITS2,Sydney_2016_Water_site 1_d,Environment,Water,Bleaching,Site_1,D,Temperate,x,x,x,x,x,x,n,n,n,n
+200_ITS2,Sydney_2016_Water_site 2_a,Environment,Water,Bleaching,Site_2,A,Temperate,x,x,x,x,x,x,n,n,n,n
+201_ITS2,Sydney_2016_Water_site 2_b,Environment,Water,Bleaching,Site_2,B,Temperate,x,x,x,x,x,x,n,n,n,n
+202_ITS2,Sydney_2016_Water_site 2_c,Environment,Water,Bleaching,Site_2,C,Temperate,x,x,x,x,x,x,n,n,n,n
+203_ITS2,Sydney_2016_Water_site 2_d,Environment,Water,Bleaching,Site_2,D,Temperate,x,x,x,x,x,x,n,n,n,n
+204_ITS2,Sydney_2016_Water_site 3_a,Environment,Water,Bleaching,Site_3,A,Temperate,x,x,x,x,x,x,n,n,n,n
+205_ITS2,Sydney_2016_Water_site 3_b,Environment,Water,Bleaching,Site_3,B,Temperate,x,x,x,x,x,x,n,n,n,n
+206_ITS2,Sydney_2016_Water_site 3_c,Environment,Water,Bleaching,Site_3,C,Temperate,x,x,x,x,x,x,n,n,n,n
+207_ITS2,Sydney_2016_Water_site 3_d,Environment,Water,Bleaching,Site_3,D,Temperate,x,x,x,x,x,x,n,n,n,n
+PCR_negative_control_ITS2_E_H15,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_E_H16,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_E_S15,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_E_S16,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_H_Curtin16,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_H_H,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n
+PCR_negative_control_ITS2_H_S,x,x,x,x,x,x,x,x,x,x,x,x,x,y,n,n,n

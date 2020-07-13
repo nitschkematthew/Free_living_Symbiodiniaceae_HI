@@ -1,0 +1,87 @@
+---
+title: "Symportal_to_phyloseq"
+author: "MNitschke"
+date: "02/02/2020"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(phyloseq)
+library(speedyseq)
+library(microbiome)
+library(Biostrings)
+source("../help.R")
+```
+
+```{r}
+post_med <- read_tsv("post_med_seqs/88_20191231_2020-01-01_01-40-49.793978.seqs.absolute.abund_and_meta.txt") %>%
+  filter(sample_uid != "seq_accession")
+
+# Retrieve sample_data from symportal table
+sample_data <- post_med %>%
+  select(sample_uid:collection_depth) %>%
+  tibble::column_to_rownames(var = "sample_uid") %>%
+  sample_data()
+
+# Create taxa_table from symportal_table
+names <- colnames(post_med)[34:ncol(post_med)]
+tax_tab <- data.frame(ITS2type = names) %>%
+  mutate(ID = paste0("PM_", row_number())) %>%
+  mutate(Genus = case_when(str_sub(ITS2type, start = 1, end = 1) == "C" ~ 'Cladocopium',
+                           str_sub(ITS2type, start = 1, end = 1) == "D" ~ 'Durusdinium', 
+                           str_sub(ITS2type, start = 1, end = 1) == "B" ~ 'Breviolum',
+                           str_sub(ITS2type, start = 1, end = 1) == "A" ~ 'Symbiodinium',
+                           str_detect(ITS2type, "_C") ~ "Cladocopium",
+                           str_detect(ITS2type, "_D") ~ "Durusdinium",
+                           str_detect(ITS2type, "_B") ~ "Breviolum",
+                           str_detect(ITS2type, "_A") ~ "Symbiodinium",
+                         TRUE ~ "Other")) %>%
+  mutate(Kingdom = "Eukaryota",
+         Phylum = "Dinoflagellata",
+         Order = "Dinophyceae",
+         Class = "Suessiales",
+         Family = "Symbiodiniaceae") %>%
+  tibble::column_to_rownames(var = "ID") %>%
+  select(Kingdom, Phylum, Order, Class, Family, Genus, ITS2type) %>%
+  as.matrix() %>%
+  tax_table()
+
+# Create otu_table from symportal table
+otu_tab <- post_med %>%
+  select(34:ncol(.))
+colnames(otu_tab) <- taxa_names(tax_tab)
+rownames(otu_tab) <- sample_names(sample_data)
+otu_tab <- otu_table(otu_tab, taxa_are_rows = FALSE)
+
+# Import post-med DNA string set
+tax_list <- as.data.frame(tax_tab@.Data) %>%
+  tibble::rownames_to_column(var = "ID")
+seqs <- readDNAStringSet("post_med_seqs/88_20191231_2020-01-01_01-40-49.793978.seqs.fasta") %>%
+  DNAStringSet_to_df()
+refseq <- left_join(tax_list, seqs, by = c("ITS2type" = "names")) %>%
+  select(names = ID, seqs) %>%
+  df_to_DNAStringset()
+
+# Create Phyloseq object
+ps <- phyloseq(otu_tab, tax_tab, sample_data, refseq)
+```
+
+# Save symportal phyloseq object
+
+```{r}
+saveRDS(ps, "symportal_phyloseq.RDS")
+```
+
+
+```{r}
+ps %>% psmelt() %>%
+ggplot(aes(x = sample_name, y = Abundance)) +
+      geom_bar(stat = "identity", aes(fill = ITS2type), position = "fill") + 
+      scale_y_continuous(labels = scales::percent) +
+      facet_grid(~host_genus, scales = "free_x") +
+      guides(fill = guide_legend(ncol = 4)) +
+      theme(aspect.ratio = 1, axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "left") +
+      ylab("Relative Abundance (%)")
+```
+

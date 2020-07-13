@@ -1,0 +1,33 @@
+ITS2 type profile UID		43731	43626	43682	43681	43573
+Clade		C	C	C	C	C
+Majority ITS2 sequence		C15	C42a	C50b	C50b	C42.2
+Associated species		None	S. goreaui	None	None	S. goreaui
+ITS2 profile abundance local		8	7	6	2	1
+ITS2 profile abundance DB		8	60	79	4	37
+ITS2 type profile		C15-C15dq-C15dr-C15ch	C42a/C1-C42.2-C1b-C1j-C1au	C50b/C50p-C3-C50f-C3bm-C3dt	C50b-C50p-C3	C42.2/C1-C1b-C1au
+77450	Heron_2016_Coral_(Montipora)_site_2_b	40598.0	0	0	0	0
+77452	Heron_2016_Coral_(Montipora)_site_2_d	49718.0	0	0	0	0
+77439	Heron_2015_Coral_(Montipora)_site_2_c	38964.0	0	0	0	0
+77440	Heron_2015_Coral_(Montipora)_site_2_d	46949.0	0	0	0	0
+77438	Heron_2015_Coral_(Montipora)_site_2_b	38090.0	0	0	0	0
+77449	Heron_2016_Coral_(Montipora)_site_2_a	55150.0	0	0	0	0
+77451	Heron_2016_Coral_(Montipora)_site_2_c	52323.0	0	0	0	0
+77437	Heron_2015_Coral_(Montipora)_site_2_a	122785.0	0	0	0	0
+77442	Heron_2015_Coral_(Pocillopora)_site_3_b	0	21168.0	0	0	0
+77453	Heron_2016_Coral_(Pocillopora)_site_3_a	0	40127.0	0	0	0
+77444	Heron_2015_Coral_(Pocillopora)_site_3_d	0	29576.0	0	0	0
+77454	Heron_2016_Coral_(Pocillopora)_site_3_b	0	39746.0	0	0	0
+77441	Heron_2015_Coral_(Pocillopora)_site_3_a	0	27109.0	0	0	0
+77455	Heron_2016_Coral_(Pocillopora)_site_3_c	0	33609.0	0	0	0
+77443	Heron_2015_Coral_(Pocillopora)_site_3_c	0	28823.0	0	0	0
+77445	Heron_2016_Coral_(Acropora)_site_1_a	0	0	26434.0	0	0
+77448	Heron_2016_Coral_(Acropora)_site_1_d	0	0	32124.0	0	0
+77447	Heron_2016_Coral_(Acropora)_site_1_c	0	0	31234.0	0	0
+77446	Heron_2016_Coral_(Acropora)_site_1_b	0	0	31503.0	0	0
+77436	Heron_2015_Coral_(Acropora)_site_1_d	0	0	25827.0	0	0
+77435	Heron_2015_Coral_(Acropora)_site_1_c	0	0	22270.0	0	0
+77434	Heron_2015_Coral_(Acropora)_site_1_b	0	0	0	22226.0	0
+77433	Heron_2015_Coral_(Acropora)_site_1_a	0	0	0	20164.0	0
+77456	Heron_2016_Coral_(Pocillopora)_site_3_d	0	0	0	0	21166.0
+Sequence accession / SymPortal UID		517-11253-15285-3419	82-1-2-4-15-20	20905-20930-32-35-20922-20974	20905-20930-32	1-2-4-20
+Average defining sequence proportions and [stdev]		0.800[0.024]-0.090[0.013]-0.072[0.007]-0.037[0.009]	0.500[0.065]-0.191[0.032]-0.171[0.024]-0.071[0.018]-0.039[0.007]-0.029[0.008]	0.567[0.027]-0.216[0.043]-0.147[0.008]-0.033[0.017]-0.028[0.015]-0.009[0.004]	0.531[0.042]-0.284[0.021]-0.185[0.063]	0.429[nan]-0.373[nan]-0.110[nan]-0.087[nan]

@@ -1,0 +1,1431 @@
+---
+title: "Community analysis"
+author: "MNitschke"
+date: "18/12/2019"
+output: html_document
+---
+
+# Libraries
+
+```{r echo = FALSE, message = FALSE}
+library(speedyseq)
+library(vegan)
+library(microbiome)
+library(DESeq2)
+library(kmer)
+library(ape)
+library(insect)
+library(aphid)
+library(Biostrings)
+library(phangorn)
+library(hiReadsProcessor)
+library(DECIPHER)
+library(genefilter)
+library(alignfigR)
+source(file = "../../R/help.R")
+
+library(tidyverse)
+library(purrr)
+library(scales)
+library(ggraph)
+library(igraph)
+library(tidygraph)
+library(ggalt)
+library(reshape2)
+library(ggsci)
+library(viridis)
+library(RColorBrewer)
+library(patchwork)
+library(pander)
+
+theme_set(theme_bw())
+```
+
+# Load in phyloseq object
+
+Calculate library stats and clean the data
+
+```{r}
+ps <- readRDS("../dada2_Heron/phyloseq.rds") %>%
+  subset_samples(Heron_study == "y")
+
+# Use rarefaction curves to investigate the effect of sequencing depth on ASV recovery (remove negative controls here as rarefaction is meaningless on samples that have so few reads) - Note: all samples appear to reach saturation.
+p <- phyloseq.extended:::ggrare(ps %>% subset_samples(Type != "x"), step = 100, color = "Type", label = "Sample")
+p + facet_wrap(~Type, scales = "free_x") +
+  theme(aspect.ratio = 1) +
+  xlab("Number of reads") +
+  ylab("Number of ASVs") +
+  ggtitle(label = "Rarefaction curves")
+
+# Supp plot/summary to show how few samples in summer contained Symbiodiniaceae from the sediment and that they were instead dominated by prorocentrales
+sediment_summer <- ps %>% 
+  subset_samples(Specific == "Sediment") %>%
+  subset_samples(Season == "Summer")
+sediment_summer %>% psmelt() %>%
+  filter(Abundance > 0) %>%
+  mutate(Family = fct_drop(Family)) %>%
+  group_by(Sample, Family) %>%
+  summarise(sum_abund = sum(Abundance)) %>%
+  ungroup() %>%
+  group_by(Sample) %>%
+  mutate(Abundance_rel = (sum_abund/sum(sum_abund))*100) %>%
+  ggplot(aes(x = Sample, y = Abundance_rel)) +
+      geom_bar(stat = "identity", aes(fill = Family), position = "fill") + 
+      scale_y_continuous(labels = scales::percent) +
+      #facet_wrap(~Season, scales = "free_y", ncol = 1) +
+      theme(aspect.ratio = 1) +
+      guides(fill = guide_legend(ncol = 1)) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "left") +
+      ylab("Relative Abundance (%)")
+
+# Load in phylogenetic tree (see below)
+tree <- read_tree("ITS2_28S.tre")
+phy_tree(ps) <- phy_tree(tree)
+
+# Library Summary stats
+sum(sample_sums(ps)) # = 6498134 before clean
+
+lib_stats <- ps %>% psmelt() %>%
+  filter(Family == "Symbiodiniaceae") %>%
+  filter(Type != "Culture") %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample, Season, Type, Specific, Site, Replicate) %>%
+  summarise(library_size = sum(Abundance)) %>%
+  group_by(Sample, Type, Specific, Site, Replicate) %>%
+  arrange(Season, Type, Specific, Site, Replicate, Sample, desc(library_size)) %>%
+  mutate(sample_index = group_indices())
+
+# Clean data
+ps <- ps %>% # Keep only samples for Heron Island study
+  subset_taxa(Family == "Symbiodiniaceae") # Remove ITS2 sequences not assigned to Symbiodiniaceae
+
+sum(sample_sums(ps)) # 2986360 after clean
+
+# Clean up low-depth samples and low-abundance ASVs
+ps <- prune_samples(sample_sums(ps) >= 250, ps) # There arent any Symbiodiniaceae sequences in the negative controls (in fact very few sequences at all), and this step removes all negative controls from the dataset.
+ps <- prune_taxa(taxa_sums(ps) > 1, ps)
+```
+
+# Summary counts
+
+```{r}
+ASV_count <- psmelt(ps) %>%
+  filter(Type != "Culture") %>%
+  filter(Abundance > 0) %>%
+  group_by(OTU) %>%
+  slice(1)
+
+Genus_count <- psmelt(ps) %>%
+  filter(Type != "Culture") %>%
+  filter(Abundance > 0) %>%
+  group_by(Genus) %>%
+  summarise(total = sum(Abundance))
+
+Genus_niche_count <- psmelt(ps) %>%
+  filter(Type != "Culture") %>%
+  filter(Abundance > 0) %>%
+  group_by(Genus, Specific) %>%
+  summarise(total = sum(Abundance))
+
+Genus_niche_count <- ps %>%
+  psmelt() %>%
+  filter(Type != "Culture") %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample) %>%
+  summarise(Gen_count = n_distinct(Genus)) %>%
+  ungroup()
+```
+
+# Core ASVs in the environment
+
+```{r}
+ps_filt <- ps %>%
+  subset_samples(Type == "Environment")
+ps_filt <- ps_filt %>%
+  subset_samples(sample_sums(ps_filt) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_core <- core_members(ps_filt, detection = 0.01, prevalence = 1) # No study-wide core
+
+ps_sed <- ps %>%
+  subset_samples(Specific == "Sediment") 
+ps_sed <- ps_sed %>%
+  subset_samples(sample_sums(ps_sed) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_sed_core <- core_members(ps_sed, detection = 0.01, prevalence = 1) # No sediment core
+
+ps_alg <- ps %>%
+  subset_samples(Specific == "Macroalgae") 
+ps_alg <- ps_alg %>%
+  subset_samples(sample_sums(ps_alg) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_alg_core <- core_members(ps_alg, detection = 0.01, prevalence = 1) # No algae core
+
+ps_water <- ps %>%
+  subset_samples(Specific == "Water") 
+ps_water <- ps_water %>%
+  subset_samples(sample_sums(ps_water) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_water_core <- core_members(ps_water, detection = 0.01, prevalence = 1, include.lowest = TRUE) # "ASV5" - C15_AY239369
+
+# Summary - there is only one core ASV at 100% prevalence for each environmental niche, either indicating seasonality or patchiness.
+
+# Spawning ---------------------------------
+
+ps_filt_spawn <- ps %>%
+  subset_samples(Type == "Environment") %>%
+  subset_samples(Season == "Spawning")
+ps_filt_spawn <- ps_filt_spawn %>%
+  subset_samples(sample_sums(ps_filt_spawn) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_core_spawn <- core_members(ps_filt_spawn, detection = 0.01, prevalence = 1, include.lowest = TRUE) # No summer study-wide core
+
+ps_sed_spawn <- ps %>%
+  subset_samples(Specific == "Sediment") %>%
+  subset_samples(Season == "Spawning") 
+ps_sed_spawn <- ps_sed_spawn %>%
+  subset_samples(sample_sums(ps_sed_spawn) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_sed_core_spawn <- core_members(ps_sed_spawn, detection = 0.01, prevalence = 1, include.lowest = TRUE) # No summer sediment core
+
+ps_alg_spawn <- ps %>%
+  subset_samples(Specific == "Macroalgae") %>%
+  subset_samples(Season == "Spawning")
+ps_alg_spawn <- ps_alg_spawn %>%
+  subset_samples(sample_sums(ps_alg_spawn) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_alg_core_spawn <- core_members(ps_alg_spawn, detection = 0.01, prevalence = 1, include.lowest = TRUE) #  "ASV5" C15_AY239369
+
+ps_water_spawn <- ps %>%
+  subset_samples(Specific == "Water") %>%
+  subset_samples(Season == "Spawning") 
+ps_water_spawn <- ps_water_spawn %>%
+  subset_samples(sample_sums(ps_water_spawn) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_water_core_spawn <- core_members(ps_water_spawn, detection = 0.01, prevalence = 1, include.lowest = TRUE) # "ASV13" 	C3*_HM031101, "ASV17" D1_DQ838545, "ASV33" C1_AF195144, "ASV5" C15_AY239369
+
+# Summer ---------------------------------
+
+ps_filt_summer <- ps %>%
+  subset_samples(Type == "Environment") %>%
+  subset_samples(Season == "Summer")
+ps_filt_summer <- ps_filt_summer %>%
+  subset_samples(sample_sums(ps_filt_summer) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_core_summer <- core_members(ps_filt_summer, detection = 0.01, prevalence = 1, include.lowest = TRUE) # No summer study-wide core
+
+ps_sed_summer <- ps %>%
+  subset_samples(Specific == "Sediment") %>%
+  subset_samples(Season == "Summer") 
+ps_sed_summer <- ps_sed_summer %>%
+  subset_samples(sample_sums(ps_sed_summer) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_sed_core_summer <- core_members(ps_sed_summer, detection = 0.01, prevalence = 1, include.lowest = TRUE) # No summer sediment core
+
+ps_alg_summer <- ps %>%
+  subset_samples(Specific == "Macroalgae") %>%
+  subset_samples(Season == "Summer")
+ps_alg_summer <- ps_alg_summer %>%
+  subset_samples(sample_sums(ps_alg_summer) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_alg_core_summer <- core_members(ps_alg_summer, detection = 0.01, prevalence = 1, include.lowest = TRUE) # No summer algae core
+
+ps_water_summer <- ps %>%
+  subset_samples(Specific == "Water") %>%
+  subset_samples(Season == "Summer") 
+ps_water_summer <- ps_water_summer %>%
+  subset_samples(sample_sums(ps_water_summer) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+ps_water_core_summer <- core_members(ps_water_summer, detection = 0.01, prevalence = 1, include.lowest = TRUE) # "ASV5" C15_AY239369
+
+# Summary - C15 signature is detectable in the water column in both Spawning and Summer, however, only during spawning are the C3 and C1 ASVs detectable in all water samples. The C15 sequence is present in all macroalgae samples during spawning also.
+```
+
+# Alpha diversity
+
+# Phylogenetically weighted distance matrices
+
+Bring in LSU (28S) distance matrix from Nitschke et al 2020 J. Phycol. These include the latest LSU distances, including Freudenthalidium and Halluxium
+
+```{r}
+#Import the model corrected (GTR+G+I) p-distance output from raxML
+distnits <- read.table("Nitschke_et_al_Symbiodiniaceae_distances.csv", header = TRUE, sep = ",")
+
+# Import the genus(clade) information for each sequence
+genuskey <- read.table("Nitschke_et_al_distances_key.csv", header = TRUE, sep = ",")
+
+# Merge the above data frames
+distdf <- left_join(distnits, genuskey, by = c("from" = "seq"))
+distdf <- left_join(distdf, genuskey, by = c("to" = "seq"))
+
+# Generate mean inter-genus distances
+dist_means <- distdf %>%
+  group_by(Genus.x, Genus.y) %>%
+  summarise(dist = mean(dist)) %>%
+  filter(Genus.x != Genus.y) %>%
+  filter(Genus.x != "Outgroup", Genus.y != "Outgroup")
+```
+
+Align sequences from each genus and generate intra-genus distances
+
+```{r}
+# Function for subsetting phyloseq object
+generate_intragenus_dist <- function(ps, genus = "Symbiodinium"){
+  taxdf <- as.data.frame(tax_table(ps)@.Data) %>%
+    tibble::rownames_to_column(var = "ASVID") %>%
+    filter(Genus == genus)
+  rownames(taxdf) <- taxdf$ASVID
+  taxdf$ASVID <- NULL
+  taxdf <- as.matrix(taxdf) %>%
+    tax_table()
+  phy_subset <- merge_phyloseq(tax_table(taxdf),
+                               otu_table(ps, taxa_are_rows = FALSE),
+                               refseq(ps),
+                               sample_data(ps))
+  seqs <- refseq(phy_subset)
+  aligned <- AlignSeqs(seqs)
+  writeXStringSet(aligned, filepath = paste0(genus,"_aligned.fasta"))
+  aligned <- read.alignment(paste0("alignments/",genus,"_aligned.fasta"), format = "fasta")
+  dis <- (as.matrix(dist.alignment(aligned, matrix = "identity" )))^2
+  saveRDS(dis, paste0("intra_genus_dist/", genus, "-dist.rda"))
+}
+
+# List of genera to iterate over
+gen_list <- c("Cladocopium", "Halluxium", "Symbiodinium_Fr2", "Freudenthalidium", "Symbiodinium_Fr4", "Fugacium", "Breviolum", "Symbiodinium_I", "Foraminifera_D", "Durusdinium", "Gerakladium", "Effrenium", "Symbiodinium")
+
+# Generate intra-genus distance matrices
+for(i in 1:length(gen_list)){
+  print(gen_list)[i]
+  generate_intragenus_dist(ps, genus = gen_list[i])
+}
+```
+
+Map in the inter-genus distances and make UPGMA tree
+
+```{r}
+ASV_list <- taxa_names(ps)
+ASV_matrix <- matrix(0, nrow = length(ASV_list), ncol=length(ASV_list), dimnames = list(ASV_list, ASV_list))
+ASV_matrix_melt <- melt(ASV_matrix)
+
+# Load in intra-genus distance paths
+intra_dist_paths <- data.frame(path = list.files("intra_genus_dist/", pattern = "-dist")) %>%
+    separate(col = path, into = c("start"), sep = "-", extra = "drop", remove = FALSE)
+
+# Loop and update ASV_matrix_melt with intra-genus distances
+for(i in 1:length(intra_dist_paths$start)){
+  distm <- readRDS(paste0("intra_genus_dist/",intra_dist_paths$path[i]))
+  meltdist <- melt(distm)
+  ASV_matrix_melt <- left_join(ASV_matrix_melt, meltdist, by = c("Var1", "Var2")) %>%
+  mutate(value = case_when(is.na(value.y) ~ value.x, TRUE ~ value.y)) %>%
+  select(-value.x, -value.y)
+}
+
+ps_long <- psmelt(ps) %>%
+  select(OTU, Genus) %>%
+  group_by(OTU, Genus) %>%
+  distinct()
+
+dist_means_rev <- dist_means %>%
+  select(Genus.y, Genus.x, dist) %>%
+  rename(Genus.1 = "Genus.y", Genus.2 = "Genus.x")
+
+# Join in the inter-genus distances
+final_long_dist <- left_join(ASV_matrix_melt, ps_long, by = c("Var1" = "OTU")) %>%
+  left_join(., ps_long, by = c("Var2" = "OTU")) %>%
+  left_join(., dist_means) %>%
+  left_join(., dist_means_rev, by = c("Genus.x" = "Genus.1", "Genus.y" = "Genus.2")) %>% # sTUCK HERE
+  mutate(final_value = case_when(is.na(dist.y) ~ dist.x, TRUE ~ dist.y)) %>%
+  mutate(final_value = case_when(is.na(final_value) ~ value, TRUE ~ final_value)) %>%
+  select(Var1, Var2, value = final_value)
+
+# Create master distance matrix
+master_dist <- reshape2::acast(final_long_dist, Var1 ~ Var2, value.var = 'value')
+dim(master_dist)
+
+# UPGMA tree
+tree <- phangorn::upgma(master_dist)
+write.tree(tree, file = "ITS2_28S.tre")
+
+# Update ps object
+## phy_tree(ps) <- phy_tree(tree)
+```
+
+Simpler, alignment-free method
+
+-- Note the below produces almost identical results in the unifrac distance-based PCoA ordinations as the ITS2+28S UPGMA tree above 
+
+```{r}
+ASVs <- refseq(ps) %>%
+    DNAStringSet_to_df()
+  
+kdist <- ASVs %>%
+  df_to_DNAStringset() %>%
+  DNAStringSet_to_DNAbin() %>%
+  kdistance(k = 7, residues = "DNA", method = "edgar") %>%
+  as.matrix()
+
+tree <- phangorn::upgma(kdist)
+write.tree(tree, file = "ITS2_kmer.tre")
+
+# Update ps object
+## phy_tree(ps) <- phy_tree(tree)
+```
+
+Inspect the differences in the two trees
+
+```{r}
+ITS2_28S_tree <- read.tree("ITS2_28S.tre")
+ITS2_kmer_tree <- read.tree("ITS2_kmer.tre")
+
+dnd1 <- as.dendrogram(ITS2_28S_tree)
+dnd2 <- as.dendrogram(ITS2_kmer_tree)
+dndlist <- dendextend::dendlist(dnd1, dnd2)
+dendextend::tanglegram(dndlist, fast = TRUE, margin_inner = 5)
+```
+
+# Figure 1
+
+## Barplot
+
+```{r}
+glom <- tax_glom(ps, taxrank = "Genus") %>%
+  transform_sample_counts(function(x) x/sum(x)) %>%
+  psmelt() %>%
+  filter(str_detect(Type, "Host|Environment")) %>%
+  mutate(Genus = fct_relevel(Genus, c("Cladocopium", "Halluxium", "Symbiodinium_Fr2", "Freudenthalidium", "Symbiodinium_Fr4", "Fugacium", "Breviolum", "Symbiodinium_I", "Foraminifera_D", "Durusdinium", "Gerakladium", "Effrenium", "Symbiodinium")),
+         Specific = fct_relevel(Specific, c("Acropora aspera", "Montipora digitata", "Pocillopora damicornis", "Water", "Sediment", "Macroalgae"))) %>%
+  filter(Abundance > 0) %>%
+  mutate(Genus = fct_drop(Genus)) %>%
+  group_by(Type, Specific, Genus, Season) %>%
+  summarise(mean_abund = mean(Abundance))
+
+genus_palette <- pal_d3(palette = "category20")
+genus_cols <- as.vector(genus_palette(length(levels(glom$Genus))))
+names(genus_cols) <- levels(glom$Genus)
+
+pb <- ggplot(data = glom, aes(x = Specific, y = mean_abund)) +
+      geom_bar(stat = "identity", aes(fill = Genus), position = "fill") + 
+      scale_y_continuous(labels = scales::percent) +
+      facet_wrap(~Season, scales = "free_y", ncol = 1) +
+      theme(aspect.ratio = 1, legend.position = "right") +
+      guides(fill = guide_legend(ncol = 1)) +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "left") +
+      scale_fill_manual(values = genus_cols) +
+      ylab("Relative Abundance (%)")
+```
+
+## PCoA
+
+```{r}
+ps_filt <- ps %>%
+  subset_samples(Type != "Culture") %>%
+  subset_samples(Type != "Host") %>%
+  subset_samples(sample_sums(ps) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+
+# Hellinger transform (square root of relative abundances)
+ps.hell <- microbiome::transform(ps_filt, transform = "hellinger", target = "OTU", shift = 1, scale = 1)
+
+# Produce NMDS ordination of bray curtis dissimilarity matrix
+ps.uni <- ordinate(ps.hell, "PCoA", "unifrac", weighted = TRUE)
+
+# Facet by sample vs taxa (biplot)
+po <- plot_ordination(ps.hell, ps.uni, justDF = TRUE) %>%
+  mutate(Specific = fct_relevel(Specific, c( "Water", "Sediment", "Macroalgae"))) %>%
+  mutate(encircle = paste(Specific, "_", Season)) %>%
+  ggplot(aes(x = Axis.1, y = Axis.2)) +
+  geom_point(size = 3, aes(colour = Specific, shape = Season)) +
+  geom_encircle(aes(fill = encircle), s_shape = 1, expand = 0, alpha = 0.2, show.legend = FALSE) +
+  theme(aspect.ratio = 1) +
+  scale_colour_manual(values = c("#1F77B4FF", "#FF7F0EFF", "#2CA02CFF")) +
+  scale_fill_manual(values = c("#1F77B4FF", "#1F77B4FF", "#FF7F0EFF", "#FF7F0EFF", "#2CA02CFF", "#2CA02CFF"))
+```
+
+```{r}
+library(patchwork)
+pb + po
+```
+
+# Multivariate analyses
+
+## PERMANOVA and betadisper on weighted unifrac distances
+
+```{r}
+wuni <- phyloseq::distance(ps.hell, method = "unifrac", weighted = TRUE)
+sampledf <- data.frame(sample_data(ps.hell))
+
+adonis(wuni ~ Specific * Site * Season, data = sampledf)
+
+# Call:
+# adonis(formula = wuni ~ Specific * Site * Season, data = sampledf) 
+# 
+# Permutation: free
+# Number of permutations: 999
+# 
+# Terms added sequentially (first to last)
+# 
+#                      Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+# Specific              5    3.4376 0.68752 20.4815 0.48436  0.001 ***
+# Site                  2    0.1556 0.07782  2.3182 0.02193  0.033 *  
+# Season                1    0.1349 0.13487  4.0177 0.01900  0.009 ** 
+# Specific:Site         4    0.2370 0.05925  1.7651 0.03339  0.059 .  
+# Specific:Season       5    0.7230 0.14460  4.3077 0.10187  0.001 ***
+# Site:Season           2    0.1825 0.09124  2.7181 0.02571  0.020 *  
+# Specific:Site:Season  3    0.1454 0.04848  1.4441 0.02049  0.182    
+# Residuals            62    2.0812 0.03357         0.29324           
+# Total                84    7.0972                 1.00000           
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+betaspecific <- betadisper(wuni, sampledf$Specific)
+anova(betaspecific)
+
+# Analysis of Variance Table
+# 
+# Response: Distances
+#           Df  Sum Sq  Mean Sq F value    Pr(>F)    
+# Groups     5 0.94034 0.188068  17.248 1.672e-11 ***
+# Residuals 79 0.86138 0.010904                      
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+TukeyHSD(betaspecific)
+
+# Tukey multiple comparisons of means
+#     95% family-wise confidence level
+# 
+# Fit: aov(formula = distances ~ group, data = df)
+# 
+# $group
+#                                                    diff         lwr         upr     p adj
+# Macroalgae-Acropora aspera                 0.1701174461  0.04419703  0.29603786 0.0022915
+# Montipora digitata-Acropora aspera        -0.0032267834 -0.15572398  0.14927042 0.9999999
+# Pocillopora damicornis-Acropora aspera    -0.0001780181 -0.15267522  0.15231918 1.0000000
+# Sediment-Acropora aspera                   0.3041059633  0.17203952  0.43617241 0.0000000
+# Water-Acropora aspera                      0.1646308838  0.03944257  0.28981920 0.0032526
+# Montipora digitata-Macroalgae             -0.1733442295 -0.29926465 -0.04742381 0.0017775
+# Pocillopora damicornis-Macroalgae         -0.1702954642 -0.29621588 -0.04437505 0.0022598
+# Sediment-Macroalgae                        0.1339885172  0.03377822  0.23419881 0.0026267
+# Water-Macroalgae                          -0.0054865623 -0.09644078  0.08546766 0.9999755
+# Pocillopora damicornis-Montipora digitata  0.0030487653 -0.14944843  0.15554596 0.9999999
+# Sediment-Montipora digitata                0.3073327466  0.17526630  0.43939919 0.0000000
+# Water-Montipora digitata                   0.1678576672  0.04266935  0.29304598 0.0025317
+# Sediment-Pocillopora damicornis            0.3042839814  0.17221753  0.43635043 0.0000000
+# Water-Pocillopora damicornis               0.1648089019  0.03962059  0.28999722 0.0032083
+# Water-Sediment                            -0.1394750794 -0.23876388 -0.04018628 0.0013399
+
+betaseason <- betadisper(wuni, sampledf$Season)
+anova(betaseason)
+
+# Analysis of Variance Table
+# 
+# Response: Distances
+#           Df  Sum Sq   Mean Sq F value Pr(>F)
+# Groups     1 0.00068 0.0006813  0.0222 0.8818
+# Residuals 83 2.54170 0.0306229                  
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+# Summary: Clearly there is difference around the centroids because the host sample compositions are basically uniform compared to the environmental samples. What about if we subset to just environmental samples and then try? Sediment looks less variable than water and macroalgae.
+
+#---------------------------------------------------------------------
+
+ps_filt_env <- ps %>%
+  subset_samples(Type != "Culture") %>%
+  subset_samples(Type != "Host") %>%
+  subset_samples(sample_sums(ps) > 0) %>%
+  filter_taxa(function(x) sum(x) > 0, TRUE)
+
+ps.hell_env <- microbiome::transform(ps_filt_env, transform = "hellinger", target = "OTU", shift = 1, scale = 1)
+wuni_env <- phyloseq::distance(ps.hell_env, method = "unifrac", weighted = TRUE)
+sampledf <- data.frame(sample_data(ps.hell_env))
+
+adonis_output <- adonis(wuni_env ~ Specific * Site * Season, data = sampledf)
+
+# Call:
+# adonis(formula = wuni_env ~ Specific * Site * Season, data = sampledf) 
+# 
+# Permutation: free
+# Number of permutations: 999
+# 
+# Terms added sequentially (first to last)
+# 
+#                      Df SumsOfSqs MeanSqs F.Model      R2 Pr(>F)    
+# Specific              2    1.7363 0.86814 18.3639 0.32186  0.001 ***
+# Site                  2    0.1556 0.07782  1.6461 0.02885  0.093 .  
+# Season                1    0.1929 0.19288  4.0801 0.03576  0.010 ** 
+# Specific:Site         4    0.2307 0.05769  1.2203 0.04277  0.253    
+# Specific:Season       2    0.6710 0.33549  7.0966 0.12438  0.001 ***
+# Site:Season           2    0.1825 0.09124  1.9300 0.03383  0.053 .  
+# Specific:Site:Season  3    0.1454 0.04848  1.0254 0.02696  0.390    
+# Residuals            44    2.0801 0.04727         0.38559           
+# Total                60    5.3945                 1.00000           
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+adonis_output$aov.tab %>%
+  tibble::rownames_to_column(var = "Factor") %>%
+  gt::gt()
+
+betaspecific_env <- betadisper(wuni_env, sampledf$Specific)
+anova(betaspecific_env) # Still difference between specific niches
+
+# Analysis of Variance Table
+# 
+# Response: Distances
+#           Df  Sum Sq  Mean Sq F value   Pr(>F)   
+# Groups     2 0.22107 0.110534  7.4679 0.001301 **
+# Residuals 58 0.85848 0.014801                    
+# ---
+# Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+TukeyHSD(betaspecific_env) # Season effect in sediment is driving the larger centroids
+
+# Tukey multiple comparisons of means
+#     95% family-wise confidence level
+# 
+# Fit: aov(formula = distances ~ group, data = df)
+# 
+# $group
+#                            diff         lwr         upr     p adj
+# Sediment-Macroalgae  0.13393161  0.03778316  0.23008007 0.0040084
+# Water-Macroalgae    -0.00551374 -0.09278130  0.08175382 0.9873508
+# Water-Sediment      -0.13944535 -0.23470966 -0.04418104 0.0024017
+
+betaseason_env <- betadisper(wuni_env, sampledf$Season)
+anova(betaseason_env) # Still difference between specific niches
+
+# Analysis of Variance Table
+# 
+# Response: Distances
+#           Df  Sum Sq  Mean Sq F value Pr(>F)
+# Groups     1 0.00618 0.006184  0.2467 0.6213
+# Residuals 59 1.47915 0.025070
+```
+
+## Sensitivity analysis
+
+Specific and season are the two main factors explaining the variance in the weighted unifrac distances. Because we have an unbalanced desgin due to poor sequencing depth in a number of samples (and because specific niche had heterogeneity of dispersion), we need to randomly subsample all groups to the smallest group size and run the adonis on each subsample, i.e. bootstrapping.
+
+```{r}
+# Bootstrap on ps.hell (includes host samples)
+
+n <- 100
+minsamp <- 4 # Only 4 samples from sediment in Summer
+
+F_list_Specific <- list()
+R2_list_Specific <- list()
+P_list_Specific <- list()
+
+F_list_Season <- list()
+R2_list_Season <- list()
+P_list_Season <- list()
+
+F_list_interaction <- list()
+R2_list_interaction <- list()
+P_list_interaction <- list()
+
+for(n in 1:n){
+  samptab <- meta(ps.hell) %>% 
+  group_by(Specific, Season) %>% 
+  sample_n(size = minsamp)
+
+  ps_sub <- subset_samples(ps.hell, ps.hell@sam_data$Sample_ID %in% samptab$Sample_ID)
+
+  set.seed(1234)
+  wuni <- phyloseq::distance(ps_sub, method = "unifrac", weighted = TRUE)
+  metadata <- meta(ps_sub)
+  ado <- adonis(wuni ~ Specific * Season, data = metadata)
+  set.seed(NULL)
+
+  F_list_Specific[[n]] <- ado$aov.tab$F.Model[1]
+  R2_list_Specific[[n]] <- ado$aov.tab$R2[1]
+  P_list_Specific[[n]] <- ado$aov.tab$`Pr(>F)`[1]
+    F_list_Season[[n]] <- ado$aov.tab$F.Model[2]
+  R2_list_Season[[n]] <- ado$aov.tab$R2[2]
+  P_list_Season[[n]] <- ado$aov.tab$`Pr(>F)`[2]
+    F_list_interaction[[n]] <- ado$aov.tab$F.Model[3]
+  R2_list_interaction[[n]] <- ado$aov.tab$R2[3]
+  P_list_interaction[[n]] <- ado$aov.tab$`Pr(>F)`[3]
+  print(n)
+}
+
+ado_F_specific <- do.call(rbind, F_list_Specific)
+ado_R2_specific <- do.call(rbind, R2_list_Specific)
+ado_P_specific <- do.call(rbind, P_list_Specific)
+ado_F_season <- do.call(rbind, F_list_Season)
+ado_R2_season <- do.call(rbind, R2_list_Season)
+ado_P_season <- do.call(rbind, P_list_Season)
+ado_F_interaction <- do.call(rbind, F_list_interaction)
+ado_R2_interaction <- do.call(rbind, R2_list_interaction)
+ado_P_interaction <- do.call(rbind, P_list_interaction)
+
+ado_stats_all <- do.call(cbind, list(ado_F_specific, ado_R2_specific, ado_P_specific, ado_F_season, ado_R2_season, ado_P_season, ado_F_interaction, ado_R2_interaction, ado_P_interaction))
+
+# ------------------------------------
+# Bootstrap on env only (excludes host samples)
+
+n <- 100
+minsamp <- 4 # Only 4 samples from sediment in Summer
+
+F_list_Specific <- list()
+R2_list_Specific <- list()
+P_list_Specific <- list()
+
+F_list_Season <- list()
+R2_list_Season <- list()
+P_list_Season <- list()
+
+F_list_interaction <- list()
+R2_list_interaction <- list()
+P_list_interaction <- list()
+
+for(n in 1:n){
+  samptab <- meta(ps.hell) %>% 
+  group_by(Specific, Season) %>% 
+  sample_n(size = minsamp)
+
+  ps_sub <- subset_samples(ps.hell_env, ps.hell@sam_data$Sample_ID %in% samptab$Sample_ID)
+
+  set.seed(4321)
+  wuni <- phyloseq::distance(ps_sub, method = "unifrac", weighted = TRUE)
+  metadata <- meta(ps_sub)
+  ado <- adonis(wuni ~ Specific * Season, data = metadata)
+  set.seed(NULL)
+
+  F_list_Specific[[n]] <- ado$aov.tab$F.Model[1]
+  R2_list_Specific[[n]] <- ado$aov.tab$R2[1]
+  P_list_Specific[[n]] <- ado$aov.tab$`Pr(>F)`[1]
+    F_list_Season[[n]] <- ado$aov.tab$F.Model[2]
+  R2_list_Season[[n]] <- ado$aov.tab$R2[2]
+  P_list_Season[[n]] <- ado$aov.tab$`Pr(>F)`[2]
+    F_list_interaction[[n]] <- ado$aov.tab$F.Model[3]
+  R2_list_interaction[[n]] <- ado$aov.tab$R2[3]
+  P_list_interaction[[n]] <- ado$aov.tab$`Pr(>F)`[3]
+  print(n)
+}
+
+ado_F_specific <- do.call(rbind, F_list_Specific)
+ado_R2_specific <- do.call(rbind, R2_list_Specific)
+ado_P_specific <- do.call(rbind, P_list_Specific)
+ado_F_season <- do.call(rbind, F_list_Season)
+ado_R2_season <- do.call(rbind, R2_list_Season)
+ado_P_season <- do.call(rbind, P_list_Season)
+ado_F_interaction <- do.call(rbind, F_list_interaction)
+ado_R2_interaction <- do.call(rbind, R2_list_interaction)
+ado_P_interaction <- do.call(rbind, P_list_interaction)
+
+ado_stats_env <- do.call(cbind, list(ado_F_specific, ado_R2_specific, ado_P_specific, ado_F_season, ado_R2_season, ado_P_season, ado_F_interaction, ado_R2_interaction, ado_P_interaction))
+
+colnames(ado_stats_env) <- c("F_niche", "R2_niche", "P_niche", "F_season", "R2_season", "P_nseason",  "F_interaction", "R2_interaction", "P_interaction")
+
+write_csv(as.data.frame(ado_stats_env), "bootstrap_env_niche_season_interaction.csv")
+```
+
+# Host-derived DIVs
+
+## Find the Symportal post-med sequences in the DADA2 output
+
+```{r}
+SymP_ps <- readRDS("../symportal_output/symportal_phyloseq.RDS")
+```
+
+Because I used two different sequence processing pipelines (Symportal and DADA2), it is likely that small differences in final sequences will be evident due to DADA2 error-correcting behaviour. Lets check these:
+
+```{r}
+# First extract the sequences from each phyloseq object
+clado_ps <- subset_taxa(ps, Genus == "Cladocopium")
+clado_SymP_ps <- subset_taxa(SymP_ps, Genus == "Cladocopium")
+
+dada2_seqs <- refseq(clado_ps) %>%
+  DNAStringSet_to_df()
+
+SymP_seqs <- refseq(clado_SymP_ps) %>%
+  DNAStringSet_to_df()
+
+all_seqs <- bind_rows(dada2_seqs, SymP_seqs)
+```
+
+```{r}
+# Now compute the kdistance
+kdist <- all_seqs %>%
+  df_to_DNAStringset() %>%
+  DNAStringSet_to_DNAbin() %>%
+  kdistance(k = 7, residues = "DNA", method = "edgar") %>%
+  as.matrix()
+
+# Filter out the closest sequence matches between symportal and dada2. 
+long_dist <- melt(kdist)[melt(lower.tri(kdist))$value,] %>%
+  mutate(value = (1-value)*100) %>%
+  select(from = Var1, to = Var2, kdist = value) %>%
+  filter(str_detect(from, "PM")) %>%
+  filter(!str_detect(to, "PM")) %>%
+  group_by(from) %>%
+  top_n(1) # Select closest match between symportal and dada2 by kdistance
+
+# We get multiple top matches above - so now I will try to correlate them by sequence abundance using a ratio-metric approach to tie-break
+clado_ps_abund <- psmelt(clado_ps) %>%
+  filter(OTU %in% long_dist$to) %>%
+  filter(Type == "Host") %>%
+  group_by(OTU) %>%
+  summarise(Abundance = sum(Abundance))  %>%
+  rename(dada2_Abundance = Abundance)
+
+clado_SymP_ps_abund <- psmelt(clado_SymP_ps) %>%
+  group_by(OTU) %>%
+  summarise(Abundance = sum(Abundance)) %>%
+  rename(SymP_Abundance = Abundance)
+
+correl <- left_join(long_dist, clado_SymP_ps_abund, by = c("from" = "OTU")) %>%
+  left_join(., clado_ps_abund, by = c("to" = "OTU")) %>%
+  mutate(ratio = SymP_Abundance/dada2_Abundance) %>%
+  group_by(from) %>%
+  filter(abs(ratio - 1) == min(abs(ratio - 1))) # Filter for ratio that is closest to 1
+
+correl_tax <- as.data.frame(tax_table(clado_ps)@.Data) %>%
+  rownames_to_column(var = "to") %>%
+  left_join(correl, .) %>%
+  select(from:ratio, dada2_species = Species)
+
+# These are the symportal IDs that make up the DIVs and our filter list for below
+DIVs <- c("C15","C15dq","C15dr","C15ch","C42a","C1","C42.2","C1b","C1j","C1au","C50b","C50p","C3","C50f","C3bm","C3dt")
+
+correl_tax <- as.data.frame(tax_table(clado_SymP_ps)@.Data) %>%
+  rownames_to_column(var = "from") %>%
+  left_join(correl_tax, .) %>%
+  select(from:dada2_species, SymP_species = ITS2type) %>%
+  filter(SymP_species %in% DIVs)
+```
+
+```{r}
+# Set up the plot dataframe by filtering out the ASVs we narrowed down to being the closest match between symportal and dada2
+dada2_DIV_bar <- ps %>%
+  psmelt() %>%
+  filter(str_detect(Type, "Host|Environment")) %>%
+  mutate(Specific = fct_relevel(Specific, c("Acropora aspera", "Water", "Montipora digitata",  "Sediment", "Pocillopora damicornis", "Macroalgae"))) %>%
+  filter(OTU %in% correl_tax$to) %>%
+  mutate(Species = fct_drop(Species))
+
+dada2_other_bar <- ps %>%
+  psmelt() %>%
+  filter(str_detect(Type, "Host|Environment")) %>%
+  mutate(Specific = fct_relevel(Specific, c("Acropora aspera", "Water", "Montipora digitata",  "Sediment", "Pocillopora damicornis", "Macroalgae"))) %>%
+  filter(!(OTU %in% correl_tax$to)) %>%
+  mutate(Species = case_when(Genus == "Cladocopium" ~ "Other_Cladocopium", TRUE ~ "Other"),
+         OTU = case_when(Genus == "Cladocopium" ~ "Other_Cladocopium", TRUE ~ "Other")) %>%
+  mutate(Species = fct_drop(Species))
+
+bardf <- rbind(dada2_DIV_bar, dada2_other_bar) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|") %>%
+    mutate(ASV_Species = fct_relevel(ASV_Species, c("ASV13|C3*_HM031101", "ASV30|C3_AF499789", "ASV282|C3*_HM031101", "ASV5|C15_AY239369", "ASV60|C15_AY239369", "ASV62|C15_AY239369", "ASV108|C15_AY239369", "ASV26|C42 (type 1)_AY258487", "ASV33|C1_AF195144", "ASV43|C1c_AY239364", "ASV147|C1j_AY589732", "ASV172|C1_AF195144"))) %>%
+  mutate(label = paste0(Site, ".", Replicate)) %>%
+  ungroup() %>%
+  group_by(Sample, Specific, Season, label, ASV_Species) %>%
+  summarise(Abundance = sum(Abundance)) %>%
+  ungroup()
+
+# Need to make palettes for each DIV
+C3_pal <- c("#008E28", "#2DC959", "#7BFFA0")
+names(C3_pal) <- c("ASV13|C3*_HM031101", "ASV30|C3_AF499789", "ASV282|C3*_HM031101")
+C15_pal <- c("#A155B9", "#F765A3", "#FFA4B6", "#F9D1D1")
+names(C15_pal) <- c("ASV5|C15_AY239369", "ASV60|C15_AY239369", "ASV62|C15_AY239369", "ASV108|C15_AY239369")
+C1_pal <- c("#E9692C", "#ED8756", "#F2A580", "#F6C3AB", "#FBE1D5")
+names(C1_pal) <- c("ASV26|C42 (type 1)_AY258487", "ASV33|C1_AF195144", "ASV43|C1c_AY239364", "ASV147|C1j_AY589732", "ASV172|C1_AF195144")
+other_pal <- c("grey75", "lightblue")
+names(other_pal) <- c("Other|Other", "Other_Cladocopium|Other_Cladocopium")
+
+pal <- c(C15_pal, C1_pal, C3_pal, other_pal)
+```
+
+# Figure 2
+
+```{r}
+ggplot(bardf, aes(x = label, y = Abundance)) +
+    geom_bar(stat = "identity", aes(fill = ASV_Species), position = "fill") +
+    facet_wrap(~Specific * Season, scales = "free_x", ncol = 4) +
+    scale_y_continuous(labels = scales::percent) +
+    theme(aspect.ratio = 1, legend.position = "left") +
+    scale_fill_manual(values = pal) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5)) +
+    ylab("Relative Abundance (%)")
+```
+
+## Cladocopium summary statistics
+
+```{r}
+Clado_ss <- bardf %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample) %>%
+  mutate(Abundance_rel = (Abundance/sum(Abundance))*100) %>%
+  ungroup() %>% # Stop here for just ASV relative abundance, continue for DIV vs ASV rel abund
+  mutate(ASV_Species = as.character(ASV_Species),
+    group = case_when(str_detect(ASV_Species, "ASV") ~ "DIV", TRUE ~ ASV_Species)) %>%
+  group_by(Sample, Specific, Season, group) %>%
+  summarise(abund = sum(Abundance_rel))
+```
+
+# Culture-based DIVs
+
+```{r}
+# Symbiodinium start ------------------------
+culture_DIV <- ps %>%
+  subset_samples(Type == "Culture")
+Symbiodinium_DIV <- culture_DIV %>%
+  subset_samples(Culture_genus == "Symbiodinium")
+Symbiodinium_DIV <- Symbiodinium_DIV %>%
+  subset_samples(sample_sums(culture_DIV) > 0)
+Symbiodinium_DIV <- Symbiodinium_DIV %>%
+  subset_taxa(Genus == "Symbiodinium") %>%
+  filter_taxa(function(x) sum(x) > 1, TRUE) # Remove singletons
+Symbiodinium_DIV <- transform_sample_counts(Symbiodinium_DIV, function(x) x/sum(x)*100) # Convert to relative abundance
+
+# Top 3 DIVs per culture
+Symbiodinium_top_3_ASV <- psmelt(Symbiodinium_DIV) %>%
+  group_by(Sample) %>%
+  top_n(3, wt = Abundance) %>%
+  arrange(Sample, desc(Abundance)) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|")
+
+CCMP_2430_pal <- c("#DF0000", "#EF7F7F", "#F7BFBF")
+names(CCMP_2430_pal) <- c("ASV34|A3_DQ838546", "ASV203|A3_DQ838546", "ASV1006|A3_DQ838546")
+
+CCMP_2461_pal <- c("#FF545E", "#FFA9AE", "#FFD4D7")
+names(CCMP_2461_pal) <- c("ASV24|A_AF184942", "ASV712|A_AF184942", "ASV965|A_AF184942")
+
+CCMP_2469_pal <- c("#FF7B00", "#FFBD7F", "#FFDEBF")
+names(CCMP_2469_pal) <- c("ASV32|A1.1_AF333504", "ASV234|A1.1_AF333504", "ASV301|A1.1_AF333504")
+
+CCMP_2548_pal <- c("#FFB31F", "#F8FF84", "#FBFFC2")
+names(CCMP_2548_pal) <- c("ASV18|A_AF184948", "ASV471|A_AF184948", "ASV436|A_AF184948")
+
+Cult_24_Sugget_pal <- c("#F8FF84")
+names(Cult_24_Sugget_pal) <- c("ASV510|A_AF184948")
+
+CCMP_2592_pal <- c("#FF7FC1", "#FFBFE0", "#FFDFEF")
+names(CCMP_2592_pal) <- c("ASV28|A5_AF333508", "ASV472|A5_AF333508", "ASV668|A5_AF333508")
+
+Cult_28_Sugget_pal <- c("#FF00FF", "#FF7FFF", "#FFBFFF")
+names(Cult_28_Sugget_pal) <- c("ASV39|A_DQ174724", "ASV41|A_DQ174724", "ASV520|A_DQ174724")
+
+Cult_29_Sugget_pal <- c("#8C00A9", "#C57FD4", "#E2BFE9")
+names(Cult_29_Sugget_pal) <- c("ASV29|A1_AB097463", "ASV163|A1_AB097463", "ASV341|A1_AB097463")
+
+# Symbiodinium end -------------------------
+
+# Durusdinium start ------------------------
+
+Durusdinium_DIV <- culture_DIV %>%
+  subset_samples(Culture_genus == "Durusdinium")
+Durusdinium_DIV <- Durusdinium_DIV %>%
+  subset_samples(sample_sums(Durusdinium_DIV) > 0)
+Durusdinium_DIV <- Durusdinium_DIV %>%
+  subset_taxa(Genus == "Durusdinium") %>%
+  filter_taxa(function(x) sum(x) > 1, TRUE) # Remove singletons
+Durusdinium_DIV <- transform_sample_counts(Durusdinium_DIV, function(x) x/sum(x)*100) # Convert to relative abundance
+
+# Top 3 DIVs per culture
+Durusdinium_top_3_ASV <- psmelt(Durusdinium_DIV) %>%
+  group_by(Sample) %>%
+  top_n(3, wt = Abundance) %>%
+  arrange(Sample, desc(Abundance)) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|")
+
+Durusdinium_pal <- c("#0B009F", "#1400D3", "#3F7EFF", "#8BD2FF", "#BFF5FF")
+names(Durusdinium_pal) <- c("ASV17|D1_DQ838545", "ASV36|D1a_AF499802", "ASV102|D4-5_EU812743", "ASV251|D1a_AF499802", "ASV117|D1a_AF499802")
+
+# Dursdinium end --------------------------
+
+# Fugacium start ------------------------
+
+Fugacium_DIV <- culture_DIV %>%
+  subset_samples(Culture_genus == "Fugacium")
+Fugacium_DIV <- Fugacium_DIV %>%
+  subset_samples(sample_sums(Fugacium_DIV) > 0)
+Fugacium_DIV <- Fugacium_DIV %>%
+  subset_taxa(Genus == "Fugacium") %>%
+  filter_taxa(function(x) sum(x) > 1, TRUE) # Remove singletons
+Fugacium_DIV <- transform_sample_counts(Fugacium_DIV, function(x) x/sum(x)*100) # Convert to relative abundance
+
+# Top 3 DIVs per culture
+Fugacium_top_3_ASV <- psmelt(Fugacium_DIV) %>%
+  group_by(Sample) %>%
+  top_n(3, wt = Abundance) %>%
+    arrange(Sample, desc(Abundance)) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|")
+
+CCMP_2434_pal <- c("#8DFF03", "#C6FF81", "#E8FFCD")
+names(CCMP_2434_pal) <- c("ASV15|F_AF333516", "ASV25|F_AF333516", "ASV457|F_AF333516")
+
+Cult_133_pal <- c("#00CF12", "#7FE788", "#CCF5D0")
+names(Cult_133_pal) <- c("ASV19|F1_AF184946", "ASV299|F1_AF184946", "ASV405|F1_AF184946")
+
+Cult_135_pal <- c("#7FC98F", "#CCE9D2")
+names(Cult_135_pal) <- c("ASV334|F_AF333516", "ASV953|F_AF333516")
+
+# Fugacium end --------------------------
+
+# Filter DIVs into dataframes and others into dataframes
+
+env_ps <- ps %>%
+  subset_samples(Type != "Host")
+
+env_ps <- env_ps %>%
+  subset_samples(sample_sums(env_ps) > 0)
+
+# DIVs
+
+symbio_DIVs <- psmelt(env_ps) %>%
+  filter(!str_detect(Culture_genus, "Breviolum|Cladocopium|Effrenium")) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|") %>%
+  filter(ASV_Species %in% Symbiodinium_top_3_ASV$ASV_Species) %>%
+  mutate(ASV_Species = fct_drop(ASV_Species))
+
+durus_DIVs <- psmelt(env_ps) %>%
+  filter(!str_detect(Culture_genus, "Breviolum|Cladocopium|Effrenium"))  %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|") %>%
+  filter(ASV_Species %in% Durusdinium_top_3_ASV$ASV_Species) %>%
+  mutate(ASV_Species = fct_drop(ASV_Species))
+
+fugacium_DIVs <- psmelt(env_ps) %>%
+  filter(!str_detect(Culture_genus, "Breviolum|Cladocopium|Effrenium")) %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|") %>%
+  filter(ASV_Species %in% Fugacium_top_3_ASV$ASV_Species) %>%
+  mutate(ASV_Species = fct_drop(ASV_Species))
+
+# Others
+
+bardf_other <- psmelt(env_ps) %>%
+  filter(!str_detect(Culture_genus, "Breviolum|Cladocopium|Effrenium"))  %>%
+    mutate(Species = as.character(Species)) %>%
+    mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
+         TRUE ~ Species)) %>%
+    unite(OTU, Species, col = "ASV_Species", sep = "|") %>%
+  filter(!(ASV_Species %in% Symbiodinium_top_3_ASV$ASV_Species)) %>%
+  filter(!(ASV_Species %in% Durusdinium_top_3_ASV$ASV_Species)) %>%
+  filter(!(ASV_Species %in% Fugacium_top_3_ASV$ASV_Species)) %>%
+  mutate(ASV_Species = as.character(ASV_Species)) %>%
+  mutate(ASV_Species = case_when(Genus == "Symbiodinium" ~ "Other_Symbiodinium",
+                             Genus == "Durusdinium" ~ "Other_Durusdinium",
+                             Genus == "Fugacium" ~ "Other_Fugacium",
+                             TRUE ~ "Other_Symbiodiniaceae"),
+         ASV_Species = case_when(Genus == "Symbiodinium" ~ "Other_Symbiodinium",
+                         Genus == "Durusdinium" ~ "Other_Durusdinium",
+                         Genus == "Fugacium" ~ "Other_Fugacium",
+                             TRUE ~ "Other_Symbiodiniaceae"))
+
+other_pal <- c("#5A5A5A", "#9E9E9E", "#DFDFDF", "#FFFFFF")
+names(other_pal) <- c("Other_Fugacium","Other_Symbiodinium","Other_Durusdinium","Other_Symbiodiniaceae")
+
+#-----------
+
+# All colour palettes
+
+all_pal <- c(CCMP_2430_pal, CCMP_2461_pal, CCMP_2469_pal, CCMP_2548_pal, Cult_24_Sugget_pal, CCMP_2592_pal, Cult_28_Sugget_pal, Cult_29_Sugget_pal, Durusdinium_pal, CCMP_2434_pal, Cult_133_pal, Cult_135_pal, other_pal)
+
+# Final bardf
+
+bardf <- rbind(symbio_DIVs, durus_DIVs, fugacium_DIVs, bardf_other) %>%
+    filter(Sequenced_genus == Genus | Sequenced_genus == "x") %>%
+  mutate(Plot_specific = case_when(str_detect(Specific, "Sediment|Water|Macroalgae") ~ Specific,
+                                   TRUE ~ Culture_genus)) %>%
+  mutate(Plot_specific = fct_relevel(Plot_specific, "Fugacium", "Water", "Symbiodinium", "Sediment", "Durusdinium",  "Macroalgae")) %>%
+  mutate(label = paste0(Site, ".", Replicate)) %>%
+  mutate(Sample = as.character(Sample)) %>%
+  mutate(label = case_when(label == "x.x" ~ Sample, TRUE ~ label)) %>%
+  mutate(label = fct_relevel(label, "Cult_133", "CCMP_2434", "Cult_135", "CCMP_2430", "CCMP_2461", "CCMP_2469", "CCMP_2548", "Cult_24_Sugget", "CCMP_2592", "Cult_28_Sugget", "Cult_29_Sugget", "CCMP_2556", "RB7", "Cult_RD03")) %>%
+  mutate(ASV_Species = fct_relevel(ASV_Species, "ASV19|F1_AF184946", "ASV299|F1_AF184946", "ASV405|F1_AF184946", "ASV15|F_AF333516", "ASV25|F_AF333516", "ASV457|F_AF333516",  "ASV334|F_AF333516", "ASV953|F_AF333516", "Other_Fugacium", "ASV34|A3_DQ838546", "ASV203|A3_DQ838546", "ASV1006|A3_DQ838546", "ASV24|A_AF184942", "ASV712|A_AF184942", "ASV965|A_AF184942", "ASV32|A1.1_AF333504", "ASV234|A1.1_AF333504", "ASV301|A1.1_AF333504", "ASV18|A_AF184948", "ASV471|A_AF184948", "ASV436|A_AF184948", "ASV510|A_AF184948", "ASV28|A5_AF333508", "ASV472|A5_AF333508", "ASV668|A5_AF333508", "ASV39|A_DQ174724", "ASV41|A_DQ174724", "ASV520|A_DQ174724", "ASV29|A1_AB097463", "ASV163|A1_AB097463", "ASV341|A1_AB097463", "Other_Symbiodinium", "ASV17|D1_DQ838545", "ASV36|D1a_AF499802", "ASV102|D4-5_EU812743", "ASV251|D1a_AF499802", "ASV117|D1a_AF499802", "Other_Durusdinium", "Other_Symbiodiniaceae")) %>%
+  ungroup() %>%
+  group_by(Sample, Specific, Season, Plot_specific, label, ASV_Species) %>%
+  summarise(Abundance = sum(Abundance)) %>%
+  ungroup()
+```
+
+## Figure 3
+
+```{r}
+ggplot(bardf, aes(x = label, y = Abundance)) +
+    geom_bar(stat = "identity", aes(fill = ASV_Species), position = "fill") +
+    facet_wrap(~Plot_specific * Season, scales = "free_x", ncol = 3) +
+    scale_y_continuous(labels = scales::percent) +
+    theme(aspect.ratio = 1, legend.position = "right") +
+    guides(fill = guide_legend(ncol = 1)) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "left") +
+    scale_fill_manual(values = all_pal) +
+    ylab("Relative Abundance (%)")
+```
+
+## Fugacium, Symbiodinium, Durusdinium DIV summary statistics
+
+```{r}
+FSD_ss <- bardf %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample) %>%
+  mutate(Abundance_rel = (Abundance/sum(Abundance))*100) %>%
+  ungroup() %>%
+  mutate(ASV_Species = as.character(ASV_Species),
+    group = case_when(str_detect(ASV_Species, "ASV") ~ "DIV", TRUE ~ ASV_Species)) %>%
+  group_by(Sample, Specific, Season, ASV_Species) %>%
+  summarise(abund = sum(Abundance_rel))
+```
+
+# Remaining sequences that are without material for DIVs
+
+```{r}
+DIV_list <- c(names(pal), names(all_pal))
+
+remaining_df <- ps_filt %>%
+  psmelt() %>%
+  mutate(Genus = fct_relevel(Genus, c("Cladocopium", "Halluxium", "Symbiodinium_Fr2", "Freudenthalidium", "Symbiodinium_Fr4", "Fugacium", "Breviolum", "Symbiodinium_I", "Foraminifera_D", "Durusdinium", "Gerakladium", "Symbiodinium")),
+        Specific = fct_relevel(Specific, c("Water", "Sediment", "Macroalgae"))) %>%
+  filter(Type == "Environment") %>%
+  mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"))) %>%
+  unite(OTU, Species, col = "ASV_Species", sep = "|", remove = FALSE) %>%
+  filter(!(ASV_Species %in% DIV_list)) %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample, Genus) %>%
+  top_n(., 1, Abundance) %>%
+  ungroup() %>%
+  mutate(ASV_Species = fct_drop(ASV_Species)) %>%
+  group_by(Sample) %>%
+  mutate(Abundance_rel = (Abundance/sum(Abundance))*100) %>%
+  ungroup()
+```
+
+## Figure 4a
+
+```{r}
+Fig4a <- remaining_df %>%
+  group_by(Specific, Genus, Season) %>%
+  summarise(Abundance = mean(Abundance)) %>%
+    ggplot(aes(x = Specific, y = Abundance)) +
+          geom_bar(stat = "identity", aes(fill = Genus), position = "fill") +
+          facet_grid(~Season, scales = "free_x") +
+          scale_y_continuous(labels = scales::percent) +
+          theme(aspect.ratio = 1, legend.position = "left") +
+          theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "left") +
+          scale_fill_manual(values = genus_cols) +
+          ylab("Relative Abundance")
+```
+
+## ASV sequence similarity network
+
+```{r}
+get_long_kdist <- function(refdb = "filepath", phyloseq = ps, k = 7, taxalist = taxnames){
+  
+  allTaxa <- taxa_names(ps)
+  allTaxa <- allTaxa %in% taxalist
+  ps_filt <- prune_taxa(allTaxa, ps)
+  
+  taxlist <- as.data.frame(tax_table(ps_filt)) %>%
+    tibble::rownames_to_column(var = "ASV") %>%
+  select(ASV, Genus, Species) %>%
+  distinct(Species, .keep_all = TRUE) %>%
+  mutate(Species = as.character(Species))
+
+  ASV <- refseq(ps_filt) %>%
+    DNAStringSet_to_df()
+  
+  SDB <- readDNAStringSet(refDB) %>%
+    DNAStringSet_to_df() %>%
+    mutate(names = str_remove(names, "Eukaryota;Dinoflagellata;Dinophyceae;Suessiales;Symbiodiniaceae;")) %>%
+    separate(names, into = c("Genus","names"), sep = ";") %>%
+    filter(names %in% taxlist$Species)
+  
+  SDB_bind <- SDB %>%
+    select(names, seqs)
+  
+  SDB_ASV_seqs <- rbind(SDB_bind, ASV)
+  
+  kdist <- SDB_ASV_seqs %>%
+    df_to_DNAStringset() %>%
+    DNAStringSet_to_DNAbin() %>%
+    kdistance(k = k, residues = "DNA", method = "edgar") %>%
+    as.matrix()
+  
+  long_dist <- melt(kdist)[melt(lower.tri(kdist))$value,] %>%
+    mutate(value = (1-value)*100) %>%
+    select(from = Var1, to = Var2, kdist = value)
+  
+  taxgen <- as.data.frame(tax_table(ps_filt)) %>%
+    tibble::rownames_to_column(var = "ASV") %>%
+    select(ASV, Genus)
+  SDB_gen <- SDB %>% select(ASV = names, Genus)
+  genus_list <- rbind(taxgen, SDB_gen)
+
+  long_dist <- left_join(long_dist, genus_list, by = c("from" = "ASV")) %>%
+    full_join(., genus_list, by = c("to" = "ASV")) %>%
+    filter(Genus.x == Genus.y) %>%
+    select(from, to, kdist, Genus = Genus.x)
+  
+  return(long_dist)
+}
+
+get_network_data <- function(refdb = "filepath", phyloseq = ps, taxalist = taxa_names){
+  
+  allTaxa <- taxa_names(ps)
+  allTaxa <- allTaxa %in% taxalist
+  ps_filt <- prune_taxa(allTaxa, ps)
+  
+  taxlist <- as.data.frame(tax_table(ps_filt)) %>%
+  select(Species) %>%
+  distinct(Species) %>%
+  mutate(Species = as.character(Species))
+  
+  ASVdata <- enframe(taxa_sums(ps_filt)) %>%
+    select(names = name, abundance = value) %>%
+    mutate(abundance = (abundance/sum(abundance))*100) %>%
+    mutate(origin = "ASV")
+  
+  genuslist <- as.data.frame(tax_table(ps_filt)) %>%
+    tibble::rownames_to_column(var = "names") %>%
+    select(names, Genus)
+  
+  ASVdata <- left_join(ASVdata, genuslist)
+  
+  SDB <- readDNAStringSet(refDB) %>%
+    DNAStringSet_to_df() %>%
+    mutate(names = str_remove(names, "Eukaryota;Dinoflagellata;Dinophyceae;Suessiales;Symbiodiniaceae;")) %>%
+    separate(names, into = c("Genus","names"), sep = ";") %>%
+    filter(names %in% taxlist$Species)
+  
+  SDBdata <- SDB %>%
+    select(names, Genus) %>%
+    mutate(abundance = mean(ASVdata$abundance),
+           origin = "Reference") %>%
+    select(names, abundance, origin, Genus)
+  
+  network_data <- rbind(SDBdata, ASVdata)
+  
+  return(network_data)
+}
+
+refDB <- "../../Raw_data/Reference_databases/ITS2dbn1_Dinophy_Symbio.fasta"
+
+full_names <- (remaining_df %>% distinct(OTU))$OTU
+full_names_kdist <- get_long_kdist(refdb = refDB, phyloseq = ps_filt, taxalist = full_names) %>%
+      mutate(from = case_when(str_detect(from, "|") ~ word(as.character(from), 1, sep = "\\|"),
+         TRUE ~ from),
+         to = case_when(str_detect(to, "|") ~ word(as.character(to), 1, sep = "\\|"),
+         TRUE ~ to))
+full_names_network <- get_network_data(refdb = refDB, phyloseq = ps_filt, taxalist = full_names) %>%
+  mutate(names = case_when(str_detect(names, "|") ~ word(as.character(names), 1, sep = "\\|"),
+         TRUE ~ names))
+```
+
+## Figure 4b
+
+```{r}
+Fig4b <- tbl_graph(nodes = full_names_network, edges = full_names_kdist) %>%
+          activate(edges) %>%
+          filter(kdist > 96) %>%
+          activate(nodes) %>%
+          filter(abundance > 0) %>%
+          ggraph(layout = "fr") + 
+          geom_edge_link(alpha = 0.4, aes(width = kdist)) + 
+          scale_edge_width(range = c(0.4, 2.5)) +
+          geom_node_point(aes(fill = Genus, shape = origin, size = abundance)) +
+          scale_shape_manual(values = c(21, 22)) +
+          scale_size_area(max_size = 17) +
+          geom_node_text(aes(label = names), size = 3, repel = TRUE) +
+          scale_fill_manual(values = genus_cols) +
+          theme(aspect.ratio = 1, legend.position = "right")
+```
+
+## Figure 4c
+
+```{r}
+Fig4c <- remaining_df %>%
+  group_by(Specific, Season, Genus, OTU) %>%
+  summarise(Abundance = sum(Abundance)) %>%
+  ungroup() %>%
+    group_by(Specific, Season) %>%
+  mutate(Abundance_rel = (Abundance/sum(Abundance))*100) %>%
+    ungroup() %>%
+  arrange(Genus, OTU) %>%
+  mutate(index = row_number()) %>%
+  mutate(OTU = as.factor(OTU)) %>%
+  mutate(OTU = fct_reorder(OTU, index)) %>%
+  ggplot() +
+  theme_bw() +
+  geom_tile(aes(x = Specific, forcats::fct_rev(OTU), fill = Abundance_rel), colour = "black") +
+  scale_fill_viridis(name = "Relative abundance", option = "C") +
+  facet_wrap(~Season, nrow = 1) +
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust = 1), legend.position = "left") +
+  coord_fixed(ratio = 1) +
+  theme(panel.background = element_rect(fill = "grey50", colour = "grey50"))
+```
+
+## Figure 4
+
+```{r}
+Fig4c + (Fig4a / Fig4b)
+```
+
+## Remaining summary counts
+
+```{r}
+R_ss <- remaining_df %>%
+  filter(Abundance > 0) %>%
+  group_by(Sample) %>%
+  mutate(Abundance_rel = (Abundance/sum(Abundance))*100) %>%
+  ungroup()
+
+R_ss <- remaining_df %>%
+  filter(Abundance > 0) %>%
+  group_by(Specific, Season, Genus) %>%
+  summarise(abund = sum(Abundance)) %>%
+  mutate(Abundance_rel = (abund/sum(abund))*100) %>%
+  ungroup()
+```
+
+# Differential abundance
+
+## Niche
+
+```{r}
+ps_ds <- ps %>%
+  subset_samples(Type != "Culture") %>%
+  subset_samples(Type != "Host")
+
+ps_ds <- tax_glom(ps_ds, taxrank = "Genus")
+
+gm_mean = function(x, na.rm = TRUE){exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))}
+
+alpha <- 0.05
+
+restax <- as.data.frame(ps_ds@tax_table@.Data)
+restax <- rownames_to_column(restax, var = "ASVID")
+
+# Compare across niches
+ps_gen_ds2 <- phyloseq_to_deseq2(ps_ds, ~ Specific)
+geoMeans <- apply(counts(ps_gen_ds2), 1, gm_mean)
+estszef <- estimateSizeFactors(ps_gen_ds2, geoMeans = geoMeans)
+ps_gen_ds2 <- DESeq(estszef, fitType = "parametric")
+
+res.w.s <- results(ps_gen_ds2, cooksCutoff = FALSE, contrast = c("Specific", "Water", "Sediment"), tidy = TRUE) %>%
+  filter(padj < alpha) %>%
+  left_join(., restax, by = c("row" = "ASVID")) %>%
+  mutate(test = "Water_v_Sediment")
+
+res.w.m <- results(ps_gen_ds2, cooksCutoff = FALSE, contrast = c("Specific", "Water", "Macroalgae"), tidy = TRUE) %>%
+  filter(padj < alpha) %>%
+  left_join(., restax, by = c("row" = "ASVID")) %>%
+  mutate(test = "Water_v_Macroalgae")
+
+res.s.m <- results(ps_gen_ds2, cooksCutoff = FALSE, contrast = c("Specific", "Sediment", "Macroalgae"), tidy = TRUE) %>%
+  filter(padj < alpha) %>%
+  left_join(., restax, by = c("row" = "ASVID")) %>%
+  mutate(test = "Sediment_v_Macroalgae")
+
+res_all <- rbind(res.w.s, res.w.m, res.s.m)
+```
+
+## Season
+
+```{r}
+ps_ds <- ps %>%
+  subset_samples(Type != "Culture") %>%
+  subset_samples(Type != "Host")
+
+ps_ds <- tax_glom(ps_ds, taxrank = "Genus")
+
+gm_mean = function(x, na.rm = TRUE){exp(sum(log(x[x > 0]), na.rm = na.rm) / length(x))}
+
+alpha <- 0.05
+
+restax <- as.data.frame(ps_ds@tax_table@.Data)
+restax <- rownames_to_column(restax, var = "ASVID")
+
+# Compare across niches
+ps_gen_ds2 <- phyloseq_to_deseq2(ps_ds, ~ Season)
+geoMeans <- apply(counts(ps_gen_ds2), 1, gm_mean)
+estszef <- estimateSizeFactors(ps_gen_ds2, geoMeans = geoMeans)
+ps_gen_ds2 <- DESeq(estszef, fitType = "parametric")
+
+res.s.s <- results(ps_gen_ds2, cooksCutoff = FALSE, contrast = c("Season", "Spawning", "Summer"), tidy = TRUE) %>%
+  filter(padj < alpha) %>%
+  left_join(., restax, by = c("row" = "ASVID")) %>%
+  mutate(test = "Spawning_v_Summer")
+```
+
+```{r}
+write.csv(rbind(res_all, res.s.s), "differential_abundance.csv")
+```
+
+# Effrenium
+
+In Sweet et al 2014 (https://onlinelibrary.wiley.com/doi/full/10.1111/maec.12092), Effrenium was reported at HI.
+
+I want to check if this sequence is actually Effrenium as we do not find a single Effrenium sequence in the present study.
+
+```{r}
+library(rentrez)
+library(alignfigR)
+
+## Retrieve these from genbank
+query <- c("JN406301", "JN406302") # Some have trailing white space - use trimws() to remove it
+
+# Set my API key
+set_entrez_key("XXXXXXXXXXXXXXXXXXXXXXXXX")
+
+# Call fetch_seqs and send all output to fasta
+# Note: this appends to the geosymbio_all.fasta file so if you stop the script halfway through, delete the file before restarting.
+
+for(i in 1:length(query)){
+	q <- query[i]
+	seq <- fetch_seqs(q)
+	cat(seq, file = "Sweet_Effrenium.fasta", append = TRUE)
+	Sys.sleep(0.5) # Wait between calls so we dont get IP banned by NCBI :(
+}
+
+# Check result versus query and check if any seqs were missing from the DB
+Sweet_E <- readDNAStringSet("Sweet_Effrenium.fasta") %>%
+  DNAStringSet_to_df()
+
+SDB <- readDNAStringSet("../../Raw_data/Reference_databases/ITS2dbn1_Dinophy_Symbio.fasta") %>%
+  DNAStringSet_to_df() %>%
+  filter(str_detect(names, "Effrenium"))
+
+Sweet_SDB <- rbind(Sweet_E, SDB) %>%
+  df_to_DNAStringset() %>%
+  AlignSeqs() %>%
+  writeXStringSet("Sweet_SDB_Effrenium_aligned.fasta")
+
+# Sequences fail to align for the most part...
+Sweet_SDB_aligned <- read_alignment("Sweet_SDB_Effrenium_aligned.fasta")
+plot_alignment(Sweet_SDB_aligned, palette = "DNA", taxa = names(Sweet_SDB_aligned))
+
+Sweet_SDB <- rbind(Sweet_E, SDB) %>%
+  df_to_DNAStringset() %>%
+  DNAStringSet_to_DNAbin() %>%
+  kdistance(k = 7, method = "edgar") %>%
+  as.matrix()
+
+Sweet_SDB_long <- melt(Sweet_SDB)[melt(lower.tri(Sweet_SDB))$value,] %>%
+  mutate(value = (1-value)*100) %>%
+  select(from = Var1, to = Var2, kdist = value)
+
+# Share only up to 20% similarity with other Effrenium sequences. My suggestion is this is sequence does not belong to the Symbiodiniaceae after further BLAST searches on NCBI.
+```
+
+

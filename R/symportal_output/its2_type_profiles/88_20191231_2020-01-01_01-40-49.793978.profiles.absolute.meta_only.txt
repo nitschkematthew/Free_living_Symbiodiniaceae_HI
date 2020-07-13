@@ -1,0 +1,6 @@
+ITS2 type profile UID	Clade	Majority ITS2 sequence	Associated species	ITS2 profile abundance local	ITS2 profile abundance DB	ITS2 type profile	Sequence accession / SymPortal UID	Average defining sequence proportions and [stdev]
+43731	C	C15	None	8	8	C15-C15dq-C15dr-C15ch	517-11253-15285-3419	0.800[0.024]-0.090[0.013]-0.072[0.007]-0.037[0.009]
+43626	C	C42a	S. goreaui	7	60	C42a/C1-C42.2-C1b-C1j-C1au	82-1-2-4-15-20	0.500[0.065]-0.191[0.032]-0.171[0.024]-0.071[0.018]-0.039[0.007]-0.029[0.008]
+43682	C	C50b	None	6	79	C50b/C50p-C3-C50f-C3bm-C3dt	20905-20930-32-35-20922-20974	0.567[0.027]-0.216[0.043]-0.147[0.008]-0.033[0.017]-0.028[0.015]-0.009[0.004]
+43681	C	C50b	None	2	4	C50b-C50p-C3	20905-20930-32	0.531[0.042]-0.284[0.021]-0.185[0.063]
+43573	C	C42.2	S. goreaui	1	37	C42.2/C1-C1b-C1au	1-2-4-20	0.429[nan]-0.373[nan]-0.110[nan]-0.087[nan]
