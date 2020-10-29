@@ -108,7 +108,9 @@ res_welch_s <- data_no %>%
   welch_anova_test(Cells_cm3 ~ Habitat) %>%
   mutate(genus = "Symbiodinium")
 
-welch_res_hab <- rbind(res_welch_c, res_welch_d, res_welch_s)
+welch_res_hab <- rbind(res_welch_c, res_welch_d, res_welch_s) %>%
+  mutate(factor = "habitat")
+write_csv(welch_res_hab, "welch_res_hab.csv")
 
 res_welch_c_pwc <- data_no %>%
   filter(Genus == "Cladocopium") %>%
@@ -126,6 +128,7 @@ res_welch_s_pwc <- data_no %>%
   mutate(genus = "Symbiodinium")
 
 gh_res_hab <- rbind(res_welch_c_pwc, res_welch_d_pwc, res_welch_s_pwc)
+write_csv(gh_res_hab, "gh_res_hab.csv")
 ```
 
 ## Season - Welch Anova test & Games Howell test
@@ -186,26 +189,10 @@ res_welch_s_m <- data_no %>%
   mutate(genus = "Symbiodinium__macroalgae")
 
 welch_res_seas <- rbind(res_welch_c_w, res_welch_d_w, res_welch_s_w, res_welch_s_s, res_welch_c_m, res_welch_d_m, res_welch_s_m)
+write_csv(welch_res_seas, "welch_res_seas.csv")
 ```
 
 ```{r}
-res_welch_c <- data_no %>%
-  filter(Genus == "Cladocopium") %>%
-  welch_anova_test(Cells_cm3 ~ Season) %>%
-  mutate(genus = "Cladocopium")
-
-res_welch_d <- data_no %>%
-  filter(Genus == "Durusdinium") %>% 
-  welch_anova_test(Cells_cm3 ~ Season) %>%
-  mutate(genus = "Durusdinium")
-
-res_welch_s <- data_no %>%
-  filter(Genus == "Symbiodinium") %>% 
-  welch_anova_test(Cells_cm3 ~ Season) %>%
-  mutate(genus = "Symbiodinium")
-
-welch_res_seas <- rbind(res_welch_c, res_welch_d, res_welch_s)
-
 res_welch_c_pwc <- data_no %>%
   filter(Genus == "Cladocopium") %>%
   games_howell_test(Cells_cm3 ~ Season) %>%
@@ -222,8 +209,8 @@ res_welch_s_pwc <- data_no %>%
   mutate(genus = "Symbiodinium")
 
 gh_res_seas <- rbind(res_welch_c_pwc, res_welch_d_pwc, res_welch_s_pwc)
+write_csv(gh_res_seas, "gh_res_seas.csv")
 ```
-
 
 # Figure 5
 
@@ -241,213 +228,4 @@ ggplot(data_no, aes(Habitat_Season, Cells_cm3, fill = Habitat_Season)) +
           theme(aspect.ratio = 1) +
           theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "none") +
           scale_fill_manual(values = c("#BCD6E9", "#1F77B4FF", "#FFD9B7", "#FF7F0EFF", "#C0E3C0", "#2CA02CFF"))
-```
-
-# -------------------------------------------
-# OLD CODE BELOW
-# Phyloseq data import
-
-```{r}
-# ps <- readRDS("../dada2_Heron/phyloseq.rds") %>%
-#   subset_samples(Heron_study == "y")
-# 
-# # Clean data
-# ps <- ps %>% # Keep only samples for Heron Island study
-#   subset_taxa(Family == "Symbiodiniaceae") # Remove ITS2 sequences not assigned to Symbiodiniaceae
-# 
-# # Clean up low-depth samples and low-abundance ASVs
-# ps <- prune_samples(sample_sums(ps) >= 250, ps)
-# ps <- prune_taxa(taxa_sums(ps) > 1, ps)
-```
-
-## ASV relative abundance of Cladocopium, Durusdinium, and Symbiodinium
-
-```{r}
-# bar_df <- ps %>%
-#   psmelt() %>%
-#   filter(Type == "Environment") %>%
-#   filter(Genus == "Symbiodinium" | Genus == "Durusdinium" | Genus == "Cladocopium") %>%
-#   mutate(Genus = fct_relevel(Genus, c("Cladocopium", "Durusdinium", "Symbiodinium"))) %>%
-#   filter(Abundance > 0) %>%
-#   mutate(Genus = fct_drop(Genus)) %>%
-#   mutate(Species = as.character(Species)) %>%
-#   mutate(Species = case_when(str_detect(Species, "|") ~ word(as.character(Species), 1, sep = "\\|"),
-#          TRUE ~ Species)) %>%
-#   unite(OTU, Species, col = "ASV_Species", sep = "|", remove = FALSE) %>%
-#   unite(Specific, Season, col = "Specific_Season", sep = " ", remove = FALSE) %>%
-#   mutate(Specific_Season = as.factor(Specific_Season)) %>%
-#   mutate(Specific_Season = fct_relevel(Specific_Season, c("Water Spawning", "Water Summer", "Sediment Spawning", "Sediment Summer", "Macroalgae Spawning", "Macroalgae Summer"))) %>%
-#   arrange(Genus, Species) %>%
-#   mutate(ASV_Species = fct_inorder(ASV_Species)) %>%
-#   group_by(Specific_Season, Genus, ASV_Species) %>%
-#   summarise(Abundance = sum(Abundance)) %>%
-#   ungroup()
-```
-
-```{r}
-# Fig5b <- ggplot(data = bar_df, aes(x = Specific_Season, y = Abundance)) +
-#           geom_bar(stat = "identity", aes(fill = ASV_Species), position = "fill", colour = "black") + 
-#           scale_y_continuous(labels = scales::percent) +
-#           facet_wrap(~Genus, ncol = 3) +
-#           theme(aspect.ratio = 1) +
-#           guides(fill = guide_legend(ncol = 3)) +
-#           theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5), legend.position = "none") +
-#           ylab("Relative Abundance of ASVs")
-```
-
-# Figure 5
-
-```{r}
-# Fig5a / Fig5b
-```
-
-# Figure 5 Statistics
-
-# Controling for count of unique ASVs
-
-```{r}
-# ps_filt <- subset_samples(ps, Type == "Environment")
-# 
-# # Cladocopium
-# Clado <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Abundance > 0) %>%
-#   filter(Genus == "Cladocopium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Unique_ASVs = n_distinct(OTU)) %>%
-#   ungroup()
-# Clado_complete <- Clado %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Unique_ASVs = 0)) %>%
-#   mutate(Genus = "Cladocopium")
-# 
-# # Durusdinium
-# Dur <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Abundance > 0) %>%
-#   filter(Genus == "Durusdinium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Unique_ASVs = n_distinct(OTU)) %>%
-#   ungroup()
-# Dur_complete <- Dur %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Unique_ASVs = 0)) %>%
-#   mutate(Genus = "Durusdinium")
-# 
-# # Symbiodinium
-# Sym <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Abundance > 0) %>%
-#   filter(Genus == "Symbiodinium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Unique_ASVs = n_distinct(OTU)) %>%
-#   ungroup()
-# Sym_complete <- Clado %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Unique_ASVs = 0)) %>%
-#   mutate(Genus = "Symbiodinium")
-# 
-# # Combined
-# ASV_richness <- rbind(Clado_complete, Dur_complete, Sym_complete) %>%
-#   mutate(Site = str_remove(Site, "Site_")) %>%
-#   mutate(Site = as.factor(Site)) %>%
-#   select(Season, Site, Habitat = Specific, Replicate, Genus, Unique_ASVs)
-# 
-# # ANCOVA data frame
-# 
-# unique_ASV_data <- left_join(ASV_richness, data)
-```
-
-## Controling for Genus-specific ASV abundances
-
-```{r}
-# ps_filt <- subset_samples(ps, Type == "Environment")
-# 
-# # Cladocopium
-# Clado <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Genus == "Cladocopium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Genus_Sum = sum(Abundance)) %>%
-#   ungroup()
-# Clado_complete <- Clado %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Genus_Sum = 0)) %>%
-#   mutate(Genus = "Cladocopium")
-# 
-# # Durusdinium
-# Dur <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Abundance > 0) %>%
-#   filter(Genus == "Durusdinium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Genus_Sum = sum(Abundance)) %>%
-#   ungroup()
-# Dur_complete <- Dur %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Genus_Sum = 0)) %>%
-#   mutate(Genus = "Durusdinium")
-# 
-# # Symbiodinium
-# Sym <- ps_filt %>%
-#   psmelt() %>%
-#   filter(Abundance > 0) %>%
-#   filter(Genus == "Symbiodinium") %>%
-#   group_by(Specific, Season, Site, Replicate) %>%
-#   summarise(Genus_Sum = sum(Abundance)) %>%
-#   ungroup()
-# Sym_complete <- Clado %>%
-#   complete(Specific, Season, Site, Replicate, fill = list(Genus_Sum = 0)) %>%
-#   mutate(Genus = "Symbiodinium")
-# 
-# # Combined
-# Genus_counts <- rbind(Clado_complete, Dur_complete, Sym_complete) %>%
-#   mutate(Site = str_remove(Site, "Site_")) %>%
-#   mutate(Site = as.factor(Site)) %>%
-#   select(Season, Site, Habitat = Specific, Replicate, Genus, Genus_Sum)
-# 
-# # ANCOVA data frame
-# 
-# Genus_count_data <- inner_join(data, Genus_counts)
-```
-
-```{r}
-# complete_data <- left_join(Genus_count_data, unique_ASV_data)
-```
-
-## Cladocopium ANCOVA
-
-### Assumptions
-
-```{r}
-# complete_data_no <- complete_data %>% filter(Cells_cm3 < 3000) # There is one sample outlier with 10x the cells_cm3 of next closest sample
-# 
-# ggscatter(complete_data_no %>% filter(Genus == "Cladocopium"),
-#   x = "Cells_cm3", y = "Unique_ASVs",
-#   facet.by  = c("Habitat", "Season"), 
-#   short.panel.labs = FALSE
-#   ) +
-#   stat_smooth(method = "loess", span = 0.9)
-# 
-# complete_data %>%
-#   filter(Genus == "Cladocopium") %>%
-#   anova_test(Cells_cm3 ~ Habitat_Season * Unique_ASVs)
-# # There is homogeneity of regression slopes as the interaction terms, between the covariate (Unique_ASVs) and grouping variables (Habitat and Season), is not statistically significant, p > 0.05.
-# 
-# # Fit the model, the covariate goes first
-# model <- lm(Cells_cm3 ~ Unique_ASVs + Habitat*Season, data = complete_data %>% filter(Genus == "Cladocopium"))
-# 
-# # Inspect the model diagnostic metrics 
-# model.metrics <- augment(model) %>%
-#   select(-.hat, -.sigma, -.fitted, -.se.fit) # Remove details
-# head(model.metrics, 9)
-# 
-# shapiro_test(model.metrics$.resid)
-# levene_test(.resid ~ Habitat*Season, data = model.metrics)
-# 
-# complete_data %>%
-#   filter(Genus == "Cladocopium") %>%
-#   anova_test(Cells_cm3 ~ Unique_ASVs + Habitat * Season)
-```
-
-```{r}
-# ggplot(complete_data_no, aes(Cells_cm3, Unique_ASVs)) +
-#   geom_point(size = 3) +
-#   stat_smooth(method = "lm", span = 0.9) +
-#   facet_wrap(~Habitat*Season, scales = "free")
 ```
